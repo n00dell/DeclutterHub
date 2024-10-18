@@ -1,0 +1,37 @@
+﻿@model IEnumerable<DeclutterHub.Models.Category>
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+@if (Model.Any())
+{
+    <div class="container">
+        <div class="row">
+            @foreach (var category in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <!-- Display category image -->
+                        <img class="card-img-top" src="@category.ImageUrl" alt="@category.Name" style="height: 200px; object-fit: cover;" />
+
+                        <!-- Category details -->
+                        <div class="card-body">
+                            <h5 class="card-title">@category.Name</h5>
+                            <p class="card-text">Total Clicks: @category.ClickCount</p>
+                            <a asp-controller="Category" asp-action="Details" asp-route-id="@category.Id" class="btn btn-primary">
+                                View Items
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <p>No categories to display.</p>
+}
+
+
+
