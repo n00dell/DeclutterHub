@@ -1,81 +1,76 @@
-﻿@model DeclutterHub.Models.Item
+﻿@model DeclutterHub.Models.ItemViewModel
 
-@{
-    ViewData["Title"] = "Create";
-}
+<h2>Create Item</h2>
 
-<h1>Create</h1>
+<form asp-action="Create" method="post" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
 
-<h4>Item</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Price" class="control-label"></label>
-                <input asp-for="Price" class="form-control" />
-                <span asp-validation-for="Price" class="text-danger"></span>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="IsSold" /> @Html.DisplayNameFor(model => model.IsSold)
-                </label>
-            </div>
-            <div class="form-group">
-                <label asp-for="CreatedAt" class="control-label"></label>
-                <input asp-for="CreatedAt" class="form-control" />
-                <span asp-validation-for="CreatedAt" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Location" class="control-label"></label>
-                <input asp-for="Location" class="form-control" />
-                <span asp-validation-for="Location" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="phoneNumber" class="control-label"></label>
-                <input asp-for="phoneNumber" class="form-control" />
-                <span asp-validation-for="phoneNumber" class="text-danger"></span>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="IsNegotiable" /> @Html.DisplayNameFor(model => model.IsNegotiable)
-                </label>
-            </div>
-            <div class="form-group">
-                <label asp-for="Condition" class="control-label"></label>
-                <input asp-for="Condition" class="form-control" />
-                <span asp-validation-for="Condition" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CategoryId" class="control-label"></label>
-                <select asp-for="CategoryId" class ="form-control" asp-items="ViewBag.CategoryId"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="UserId" class="control-label"></label>
-                <select asp-for="UserId" class ="form-control" asp-items="ViewBag.UserId"></select>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+    <div class="form-group">
+        <label asp-for="Name"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
     </div>
-</div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+    <div class="form-group">
+        <label asp-for="Description"></label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Price"></label>
+        <input asp-for="Price" class="form-control" />
+        <span asp-validation-for="Price" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Location"></label>
+        <input asp-for="Location" class="form-control" />
+        <span asp-validation-for="Location" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="PhoneNumber"></label>
+        <input asp-for="PhoneNumber" class="form-control" />
+        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="IsNegotiable"></label>
+        <input asp-for="IsNegotiable" class="form-control" />
+        <span asp-validation-for="IsNegotiable" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Condition"></label>
+        <input asp-for="Condition" class="form-control" />
+        <span asp-validation-for="Condition" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="CategoryId"></label>
+        <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.CategoryId"></select>
+        <span asp-validation-for="CategoryId" class="text-danger"></span>
+    </div>
+
+    @* <div class="form-group">
+        <label asp-for="UserId"></label>
+        <select asp-for="UserId" class="form-control" asp-items="ViewBag.UserId"></select>
+        <span asp-validation-for="UserId" class="text-danger"></span>
+    </div> *@
+
+    <div class="form-group">
+        <label asp-for="ImageFiles"></label>
+        <input asp-for="ImageFiles" type="file" class="form-control-file" multiple />
+        <span asp-validation-for="ImageFiles" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create Item</button>
+</form>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
+

@@ -1,20 +1,32 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using DeclutterHub.Data;
-var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddDbContext<DeclutterHubContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DeclutterHubContext") ?? throw new InvalidOperationException("Connection string 'DeclutterHubContext' not found.")));
+using Microsoft.AspNetCore.Authentication.Cookies;
 
-// Add services to the container.
+var builder = WebApplication.CreateBuilder(args);
+
+// Add the database context using PostgreSQL
+builder.Services.AddDbContext<DeclutterHubContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DeclutterHubContext") ??
+                      throw new InvalidOperationException("Connection string 'DeclutterHubContext' not found.")));
+
+// Add authentication services with cookie-based authentication
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Account/Login";  // Path for login
+        options.LogoutPath = "/Account/Logout";  // Path for logout
+    });
+
+// Add services for controllers with views
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configure the HTTP request pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -23,6 +35,8 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+// Use authentication and authorization
+app.UseAuthentication();  // Added this to ensure authentication middleware is used
 app.UseAuthorization();
 
 app.MapControllerRoute(
@@ -30,3 +44,15 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
+
+app.MapControllerRoute(
+    name: "categoryItems",
+    pattern: "Category/{categoryId}/Items",
+    defaults: new { controller = "Items", action = "ItemsByCategory" });
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+app.MapControllerRoute(
+    name: "itemsByCategory",
+    pattern: "Items/Category/{categoryId}",
+    defaults: new { controller = "Items", action = "ItemsByCategory" });

@@ -1,0 +1,19 @@
+﻿@model IEnumerable<DeclutterHub.Models.Category>
+
+<h2>Popular Categories</h2>
+
+<div class="row">
+    @foreach (var category in Model)
+    {
+        <div class="col-md-4">
+            <div class="card mb-4 shadow-sm">
+                <img src="@category.ImageUrl" class="card-img-top" alt="@category.Name" />
+                <div class="card-body">
+                    <h5 class="card-title">@category.Name</h5>
+                    <p class="card-text">@category.Description</p>
+                    <a href="@Url.Action("ItemsByCategory", "Items", new { categoryId = category.Id })" class="btn btn-primary">View Items</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>

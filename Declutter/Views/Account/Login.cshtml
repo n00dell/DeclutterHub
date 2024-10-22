@@ -1,0 +1,44 @@
+﻿@model DeclutterHub.Models.LoginViewModel
+
+<div class="auth-container">
+    <div class="auth-header">
+        <h2>Welcome Back</h2>
+        <p>Please enter your credentials to login</p>
+    </div>
+
+    <form asp-action="Login" method="post">
+        @Html.AntiForgeryToken()
+
+        <div class="form-floating">
+            <input asp-for="Email" class="form-control" placeholder=" " />
+            <label asp-for="Email"></label>
+            <span asp-validation-for="Email" class="validation-message"></span>
+        </div>
+
+        <div class="form-floating">
+            <input asp-for="Password" type="password" class="form-control" placeholder=" " />
+            <label asp-for="Password"></label>
+            <span asp-validation-for="Password" class="validation-message"></span>
+        </div>
+
+        <div class="remember-me">
+            <input type="checkbox" id="remember" name="remember" />
+            <label for="remember">Remember me</label>
+        </div>
+
+        <button type="submit" class="auth-button">Login</button>
+
+        <div class="auth-links">
+            <a href="/Account/ForgotPassword">Forgot your password?</a>
+            <br />
+            <span>Don't have an account? </span>
+            <a href="/Account/SignUp">Sign up</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

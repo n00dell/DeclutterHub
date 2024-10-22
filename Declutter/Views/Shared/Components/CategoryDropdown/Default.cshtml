@@ -6,7 +6,7 @@
 @model IEnumerable<dynamic> 
 
 <select class="form-select" id="categoryDropdown">
-    <option value="" selected>All Categories</option>
+    <option value="">--Select Categories--</option>
     @foreach (var category in Model)
     {
         <option value="@category.Id">@Html.Encode(category.Name)</option>

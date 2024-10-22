@@ -55,7 +55,16 @@ namespace DeclutterHub.Controllers
         {
             return View();
         }
+        public async Task<IActionResult> Popular()
+        {
+            // Get the top 5 categories by ClickCount
+            var popularCategories = await _context.Category
+                .OrderByDescending(c => c.ClickCount)
+                .Take(5)
+                .ToListAsync();
 
+            return View(popularCategories);
+        }
         // POST: Categories/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.

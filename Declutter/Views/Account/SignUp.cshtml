@@ -1,39 +1,50 @@
 ﻿@model DeclutterHub.Models.SignUpViewModel
 
-<h2>Sign Up</h2>
-
-<form asp-action="SignUp" method="post">
-    @Html.AntiForgeryToken()  <!-- CSRF protection -->
-
-    <div>
-        <label asp-for="Username"></label>
-        <input asp-for="Username" />
-        <span asp-validation-for="Username"></span>
+<div class="auth-container">
+    <div class="auth-header">
+        <h2>Create Account</h2>
+        <p>Please fill in the information below</p>
     </div>
 
-    <div>
-        <label asp-for="Email"></label>
-        <input asp-for="Email" type="email" />
-        <span asp-validation-for="Email"></span>
-    </div>
+    <form asp-action="SignUp" method="post">
+        @Html.AntiForgeryToken()
 
-    <div>
-        <label asp-for="Password"></label>
-        <input asp-for="Password" type="password" />
-        <span asp-validation-for="Password"></span>
-    </div>
+        <div class="form-floating">
+            <input asp-for="Username" class="form-control" placeholder=" " />
+            <label asp-for="Username"></label>
+            <span asp-validation-for="Username" class="validation-message"></span>
+        </div>
 
-    <div>
-        <label asp-for="ConfirmPassword"></label>
-        <input asp-for="ConfirmPassword" type="password" />
-        <span asp-validation-for="ConfirmPassword"></span>
-    </div>
+        <div class="form-floating">
+            <input asp-for="Email" type="email" class="form-control" placeholder=" " />
+            <label asp-for="Email"></label>
+            <span asp-validation-for="Email" class="validation-message"></span>
+        </div>
 
-    <button type="submit">Sign Up</button>
-</form>
+        <div class="form-floating">
+            <input asp-for="Password" type="password" class="form-control" placeholder=" " />
+            <label asp-for="Password"></label>
+            <span asp-validation-for="Password" class="validation-message"></span>
+        </div>
+
+        <div class="form-floating">
+            <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder=" " />
+            <label asp-for="ConfirmPassword"></label>
+            <span asp-validation-for="ConfirmPassword" class="validation-message"></span>
+        </div>
+
+        <button type="submit" class="auth-button">Create Account</button>
+
+        <div class="auth-links">
+            <span>Already have an account? </span>
+            <a href="/Account/Login">Login</a>
+        </div>
+    </form>
+</div>
 
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 }
+
