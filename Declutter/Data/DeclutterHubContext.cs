@@ -20,5 +20,7 @@ namespace DeclutterHub.Data
         public DbSet<DeclutterHub.Models.Category> Category { get; set; } = default!;
         public DbSet<DeclutterHub.Models.Image> Image { get; set; } = default!;
         public DbSet<DeclutterHub.Models.Sale> Sale { get; set; } = default!;
+
+        public DbSet<DeclutterHub.Models.SavedItem> SavedItem { get; set; }
     }
 }
