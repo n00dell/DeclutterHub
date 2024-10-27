@@ -67,11 +67,24 @@ namespace DeclutterHub.Controllers
                     {
                         new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                         new Claim(ClaimTypes.Name, user.Username),
-                        new Claim(ClaimTypes.Email, user.Email)
+                        new Claim(ClaimTypes.Email, user.Email),
                     };
+                    if (user.IsAdmin)
+                    {
+                        claims.Add(new Claim(ClaimTypes.Role, "Admin"));
+                    }
                     var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                     await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
-                    return RedirectToAction("Index", "Items");
+
+                    if (user.IsAdmin)
+                    {
+                        return RedirectToAction("Dashboard", "Admin");
+                    }
+                    else
+                    {
+                        return RedirectToAction("Index", "Home");
+                    }
+                    
                 }
                 else
                 {
@@ -87,7 +100,8 @@ namespace DeclutterHub.Controllers
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Login", "Account");
         }
-
+        
+        
         // Utility method to hash the password
         private string HashPassword(string password)
         {

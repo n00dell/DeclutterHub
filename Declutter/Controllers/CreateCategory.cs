@@ -51,7 +51,7 @@ namespace DeclutterHub.Controllers
 
                     imagePath = $"/images/categories/{uniqueFileName}";
                 }
-
+                
                 // Create the category object and save it to the database
                 var category = new Category
                 {

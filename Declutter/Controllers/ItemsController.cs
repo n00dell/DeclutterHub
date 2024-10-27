@@ -40,11 +40,20 @@ namespace DeclutterHub.Controllers
             var item = await _context.Item
                 .Include(i => i.Category)
                 .Include(i => i.User)
+                .Include(i => i.Images)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (item == null)
             {
                 return NotFound();
             }
+            var otherItems = await _context.Item
+                .Where(i => i.UserId == item.UserId && i.Id != item.Id && !i.IsSold)
+                .Include(i => i.Images)
+                .ToListAsync();
+
+            ViewBag.OtherItems = await _context.Item
+       .Where(i => i.UserId == item.UserId && i.Id != id)
+       .ToListAsync();
 
             return View(item);
         }
@@ -66,6 +75,7 @@ namespace DeclutterHub.Controllers
         {
             if (ModelState.IsValid)
             {
+
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 var item = new Item
                 {
@@ -259,8 +269,32 @@ namespace DeclutterHub.Controllers
             // Return the items list to the view
             return View("ItemsbyCategory",items);
         }
+        [HttpPost]
+        public async Task<IActionResult> SaveItem(int id)
+        {
+            if (ModelState.IsValid)
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (userId == null)
+                {
+                    return BadRequest("User not authenticated");
+                }
 
-
+                var savedItem = new SavedItem { UserId = int.Parse(userId), ItemId = id, SavedAt = DateTime.UtcNow };
+                _context.SavedItem.Add(savedItem);
+                try
+                {
+                    await _context.SaveChangesAsync();
+                    
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(500, "Internal server error");
+                }
+                return BadRequest(ModelState);
+            }
+            return Ok();
+        }
         private bool ItemExists(int id)
         {
             return _context.Item.Any(e => e.Id == id);
