@@ -319,3 +319,72 @@ body {
         color: #666;
         font-size: 0.9rem;
     }
+.price-card {
+    background-color: #f8f9fa;
+}
+
+.contact-info {
+    font-size: 0.95rem;
+}
+
+.price-card {
+    background-color: #f8f9fa;
+}
+
+.contact-info {
+    font-size: 0.95rem;
+}
+
+.avatar img, .initial-avatar {
+    border: 2px solid #e9ecef;
+}
+
+.initial-avatar {
+    font-size: 1.2rem;
+    transition: transform 0.2s;
+}
+
+    .initial-avatar:hover {
+        transform: scale(1.05);
+    }
+
+.carousel-item img {
+    background-color: #f8f9fa;
+}
+
+.carousel-control-prev,
+.carousel-control-next {
+    background-color: rgba(0,0,0,0.2);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    top: 50%;
+    transform: translateY(-50%);
+    margin: 0 1rem;
+}
+
+.carousel-indicators {
+    margin-bottom: 0.5rem;
+}
+
+    .carousel-indicators button {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+    }
+
+.details-section dl {
+    font-size: 0.95rem;
+}
+
+.details-section dt {
+    color: #6c757d;
+}
+
+.initial-avatar {
+    transition: transform 0.2s;
+}
+
+    .initial-avatar:hover {
+        transform: scale(1.05);
+    }

@@ -25,7 +25,7 @@
         // Foreign key for User (who listed the item)
         public int UserId { get; set; }
         public virtual User User { get; set; }
-        public virtual ICollection<Image> Images { get; set; }
+        public virtual ICollection<Image> Images { get; set; } = new List<Image>();
 
     }
 }

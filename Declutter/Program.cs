@@ -18,8 +18,14 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.LogoutPath = "/Account/Logout";  // Path for logout
     });
 
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+});
 // Add services for controllers with views
 builder.Services.AddControllersWithViews();
+
+
 
 var app = builder.Build();
 

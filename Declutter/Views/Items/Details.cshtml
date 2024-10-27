@@ -1,84 +1,169 @@
 ﻿@model DeclutterHub.Models.Item
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = $"{Model.Name} - Details";
+
+    string GetInitials(string username)
+    {
+        if (string.IsNullOrEmpty(username))
+            return "?";
+        return string.Join("", username.Split(' ').Take(2).Select(s => s[0].ToString().ToUpper()));
+    }
+
+    string GetAvatarColor(string username)
+    {
+        string[] colors = { "#4f46e5", "#0891b2", "#be185d", "#7c3aed", "#059669", "#ea580c", "#2563eb", "#c026d3" };
+        int hashCode = username?.GetHashCode() ?? 0;
+        int colorIndex = Math.Abs(hashCode) % colors.Length;
+        return colors[colorIndex];
+    }
+
+    var userInitials = Model.User != null ? GetInitials(Model.User.Username) : "?";
+    var avatarColor = Model.User != null ? GetAvatarColor(Model.User.Username) : "#000"; // Default color
+
 }
 
-<h1>Details</h1>
+<div class="container py-4">
+    <div class="row">
+        <!-- Left Column - Item Image -->
+        <div class="col-lg-6">
+            <img src="@(Model.Images?.FirstOrDefault()?.Url ?? "/images/placeholder.png")"
+                 alt="@Model.Name"
+                 class="img-fluid"
+                 style="width: 100%; height: auto; object-fit: cover;" />
+        </div>
 
-<div>
-    <h4>Item</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Description)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Description)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Price)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Price)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.IsSold)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.IsSold)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CreatedAt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CreatedAt)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Location)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Location)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.phoneNumber)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.phoneNumber)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.IsNegotiable)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.IsNegotiable)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Condition)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Condition)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Category)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Category.Id)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.User)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.User.Id)
-        </dd>
-    </dl>
+        <!-- Right Column - Item Details -->
+        <div class="col-lg-6">
+            <h2 class="h3 mb-0">@Model.Name</h2>
+            <span class="badge bg-@(Model.IsSold ? "secondary" : "success")">
+                @(Model.IsSold ? "Sold" : "Available")
+            </span>
+
+            <div class="price-section mb-4">
+                <h3 class="h2 mb-2">@Model.Price.ToString("C")</h3>
+                @if (Model.IsNegotiable)
+                {
+                    <span class="badge bg-info">Price Negotiable</span>
+                }
+            </div>
+
+            <div class="details-section mb-4">
+                <h4 class="h5 text-muted mb-3">Item Details</h4>
+                <dl class="row mb-0">
+                    <dt class="col-5">Condition</dt>
+                    <dd class="col-7">@Model.Condition</dd>
+
+                    <dt class="col-5">Location</dt>
+                    <dd class="col-7">@Model.Location</dd>
+
+                    <dt class="col-5">Listed on</dt>
+                    <dd class="col-7">@Model.CreatedAt.ToString("MMM dd, yyyy")</dd>
+
+                    <dt class="col-5">Category</dt>
+                    <dd class="col-7">@Model.Category.Name</dd>
+                </dl>
+            </div>
+
+            <div class="description-section my-4">
+                <h4 class="h5 text-muted mb-3">Description</h4>
+                <p class="mb-0">@Model.Description</p>
+            </div>
+
+            @if (!Model.IsSold)
+            {
+                <div class="action-buttons d-grid gap-2">
+                    <button class="btn btn-primary" id="contact-button" onclick="togglePhoneNumber()">
+                        <i class="bi bi-chat-dots"></i> Contact Seller
+                    </button>
+                    <div id="phone-number" style="display: none; margin-top: 8px;">
+                        <strong>Phone:</strong> @Model.phoneNumber
+                    </div>
+                    <button id="like-button" class="btn btn-outline-primary" onclick="saveItem(@Model.Id)">
+                        <i class="bi bi-bookmark"></i> Save Item
+                    </button>
+                </div>
+
+                <script>
+                    function saveItem(itemId) {
+                      fetch(`/Items/SaveItem/${itemId}`, { method: 'POST' })
+        .then(response => {
+            if (!response.ok) {
+                return response.text().then(text => {
+                    throw new Error(text || "Unable to save item");
+                });
+            }
+            alert("Item saved!");
+        })
+        .catch(error => {
+            console.error("Error saving item:", error);
+            alert("Error: " + error.message);
+        });
+}
+
+                </script>
+
+                <script>
+                    function togglePhoneNumber() {
+                        var phoneNumberDiv = document.getElementById("phone-number");
+                        phoneNumberDiv.style.display = phoneNumberDiv.style.display === "none" ? "block" : "none";
+                    }
+                </script>
+            }
+        </div>
+    </div>
+
+    <!-- Seller Information Section -->
+    <div class="row mt-4 align-items-center">
+        <div class="col-md-1">
+            <div class="avatar">
+                @if (!string.IsNullOrEmpty(Model.User?.Avatar))
+                {
+                    <img src="@Model.User?.Avatar" alt="@Model.User?.Username" class="rounded-circle shadow-sm" style="width: 50px; height: 50px; object-fit: cover;" />
+                }
+                else
+                {
+                    <div class="initial-avatar rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background-color: @avatarColor; color: white; font-weight: 600;">
+                        @userInitials
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="col-md-11">
+            <h6 class="mb-0">@(Model.User?.Username ?? "Unknown User")</h6>
+            <small class="text-muted">
+                @if (Model.User?.CreatedAt != null)
+                {
+                    <span>Member since @Model.User.CreatedAt.ToString("MMM yyyy")</span>
+                }
+            </small>
+        </div>
+    </div>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
+
+@if (Model.User != null && Model.User.ListedItems != null && Model.User.ListedItems.Count > 0)
+{
+    <div class="other-items mt-5">
+        <h4>More Items from @Model.User.Username</h4>
+        <div class="row">
+            @foreach (var otherItem in Model.User.ListedItems)
+            {
+                <div class="col-md-4">
+                    <div class="card mb-4">
+                        <img src="@(otherItem.Images.FirstOrDefault()?.Url ?? "/images/placeholder.png")"
+                             alt="@otherItem.Name"
+                             class="card-img-top"
+                             style="height: 200px; object-fit: cover;" />
+                        <div class="card-body">
+                            <h5 class="card-title">@otherItem.Name</h5>
+                            <p class="card-text">@otherItem.Price.ToString("C")</p>
+                            <a href="/Items/Details/@otherItem.Id" class="btn btn-primary">View Item</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+
