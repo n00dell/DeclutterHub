@@ -1,0 +1,90 @@
+﻿@model DeclutterHub.Models.EditItemViewModel
+
+@{
+    ViewData["Title"] = "Edit Item";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2>@ViewData["Title"]</h2>
+<div asp-validation-summary="All" class="text-danger"></div>
+<form asp-action="EditItem" asp-controller="Admin" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+    <div class="form-group">
+        <label asp-for="Name"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Description"></label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Price"></label>
+        <input asp-for="Price" class="form-control" />
+        <span asp-validation-for="Price" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Location"></label>
+        <input asp-for="Location" class="form-control" />
+        <span asp-validation-for="Location" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="PhoneNumber"></label>
+        <input asp-for="PhoneNumber" class="form-control" />
+        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="IsNegotiable"></label>
+        <input asp-for="IsNegotiable" type="checkbox" />
+        <span asp-validation-for="IsNegotiable" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Condition"></label>
+        <input asp-for="Condition" class="form-control" />
+        <span asp-validation-for="Condition" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="IsVerified"></label>
+        <input asp-for="IsVerified" type="checkbox" />
+        <span asp-validation-for="IsVerified" class="text-danger"></span>
+    </div>
+        <div class="form-group">
+        <label asp-for="CategoryId"></label>
+        <select asp-for="CategoryId" asp-items="@(new SelectList(ViewBag.Categories, "Id", "Name"))" class="form-control"></select>
+        <span asp-validation-for="CategoryId" class="text-danger"></span>
+    </div>
+    <!-- Add Image Section -->
+    <div class="form-group">
+        <label>Current Images</label>
+        <div class="d-flex flex-wrap gap-3 mb-3">
+            @if (Model.Images != null && Model.Images.Any())
+            {
+                foreach (var image in Model.Images)
+                {
+                    <div class="position-relative">
+                        <img src="@image.Url" alt="Item image" style="width: 150px; height: 150px; object-fit: cover;" class="img-thumbnail" />
+                        <div class="form-check">
+                            <input type="checkbox" name="ImagesToDelete" value="@image.Id" class="form-check-input" />
+                            <label class="form-check-label">Delete</label>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <p>No images available</p>
+            }
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label>Add New Images (Optional)</label>
+        <input type="file" name="NewImages" multiple class="form-control" accept="image/*" />
+        <small class="form-text text-muted">You can select multiple images</small>
+    </div>
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+    <a asp-action="Items" class="btn btn-secondary">Cancel</a>
+</form>
+

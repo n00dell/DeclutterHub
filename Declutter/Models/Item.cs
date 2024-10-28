@@ -12,7 +12,8 @@
 
         public string Location {  get; set; }
 
-        public int phoneNumber { get; set; }
+  
+        public string PhoneNumber { get; set; } = string.Empty;
 
         public bool IsNegotiable { get; set; }
 
@@ -26,6 +27,6 @@
         public int UserId { get; set; }
         public virtual User User { get; set; }
         public virtual ICollection<Image> Images { get; set; } = new List<Image>();
-
+        public bool IsVerified {  get; set; }
     }
 }

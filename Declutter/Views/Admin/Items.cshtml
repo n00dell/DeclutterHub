@@ -1,0 +1,53 @@
+﻿@model IEnumerable<DeclutterHub.Models.Item>
+
+@{
+    ViewData["Title"] = "Manage Items";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Item Name</th>
+            <th>Description</th>
+            <th>Price</th>
+            <th>Category</th>
+            <th>User</th>
+            <th>Is Sold</th>
+            <th>Is Verified</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>@item.Description</td>
+                <td>@item.Price.ToString("C")</td>
+                <td>@item.Category?.Name</td>
+                <td>@item.User?.Username</td>
+                <td>@(item.IsSold? "Yes" : "No")</td>
+                <td>@(item.IsVerified?"Yes" :"No")</td>
+                <td>@(item.IsNegotiable?"Yes" : "No")</td>
+                <td>
+                    <a asp-action="EditItem" asp-route-id="@item.Id" class="btn btn-primary">Edit</a>
+                    <form asp-action="DeleteItem" asp-route-id="@item.Id" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this item?');">Delete</button>
+                    </form>
+                    @if (!item.IsVerified)
+                    {
+                        <form asp-action="VerifyItem" asp-route-id="@item.Id" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-success" onclick="return confirm('Are you sure you want to verify this item?');">Verify</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="CreateItem" class="btn btn-success">Add New Item</a>
+

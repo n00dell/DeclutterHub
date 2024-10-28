@@ -3,6 +3,7 @@ using System;
 using DeclutterHub.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DeclutterHub.Migrations
 {
     [DbContext(typeof(DeclutterHubContext))]
-    partial class DeclutterHubContextModelSnapshot : ModelSnapshot
+    [Migration("20241028171051_IsVNullable")]
+    partial class IsVNullable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -97,13 +100,13 @@ namespace DeclutterHub.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<bool>("IsNegotiable")
+                    b.Property<bool?>("IsNegotiable")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsSold")
                         .HasColumnType("boolean");
 
-                    b.Property<bool>("IsVerified")
+                    b.Property<bool?>("IsVerified")
                         .HasColumnType("boolean");
 
                     b.Property<string>("Location")
@@ -111,10 +114,6 @@ namespace DeclutterHub.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("PhoneNumber")
                         .IsRequired()
                         .HasColumnType("text");
 

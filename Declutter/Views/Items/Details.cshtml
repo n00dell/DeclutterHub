@@ -42,9 +42,12 @@
 
             <div class="price-section mb-4">
                 <h3 class="h2 mb-2">@Model.Price.ToString("C")</h3>
-                @if (Model.IsNegotiable)
+                @if (Model.IsNegotiable== true)
                 {
                     <span class="badge bg-info">Price Negotiable</span>
+                }
+                else if(Model.IsNegotiable == false ){
+                    <span class="badge bg-info">Price Not Negotiable</span>
                 }
             </div>
 
@@ -77,7 +80,7 @@
                         <i class="bi bi-chat-dots"></i> Contact Seller
                     </button>
                     <div id="phone-number" style="display: none; margin-top: 8px;">
-                        <strong>Phone:</strong> @Model.phoneNumber
+                        <strong>Phone:</strong> @Model.PhoneNumber
                     </div>
                     <button id="like-button" class="btn btn-outline-primary" onclick="saveItem(@Model.Id)">
                         <i class="bi bi-bookmark"></i> Save Item

@@ -85,7 +85,7 @@ namespace DeclutterHub.Controllers
                     IsSold = false,
                     CreatedAt = DateTime.UtcNow,
                     Location = model.Location,
-                    phoneNumber = model.PhoneNumber,
+                    PhoneNumber = model.PhoneNumber.ToString(),
                     IsNegotiable = model.IsNegotiable,
                     Condition = model.Condition,
                     CategoryId = model.CategoryId,
