@@ -12,5 +12,7 @@
 
         public string ImageUrl {  get; set; }
         public ICollection<Item> Items { get; set; }
+
+        public bool IsApproved { get; set; }
     }
 }

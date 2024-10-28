@@ -1,5 +1,129 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿@{
+    ViewData["Title"] = "Admin Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";  // Assuming you're using a main layout file
 }
+
+<div class="container mt-5">
+    <h1 class="mb-4">Admin Dashboard</h1>
+
+    <!-- Dashboard Summary Section -->
+    <div class="row">
+        <!-- Total Users Card -->
+        <div class="col-md-3">
+            <div class="card text-white bg-primary mb-4 shadow">
+                <div class="card-body">
+                    <h4 class="card-title">Total Users</h4>
+                    <p class="card-text fs-3">@ViewBag.TotalUsers</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Items Card -->
+        <div class="col-md-3">
+            <div class="card text-white bg-success mb-4 shadow">
+                <div class="card-body">
+                    <h4 class="card-title">Total Items Listed</h4>
+                    <p class="card-text fs-3">@ViewBag.TotalItems</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Sales Card -->
+        <div class="col-md-3">
+            <div class="card text-white bg-warning mb-4 shadow">
+                <div class="card-body">
+                    <h4 class="card-title">Total Sales</h4>
+                    <p class="card-text fs-3">@ViewBag.TotalSales</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Approvals Card -->
+        <div class="col-md-3">
+            <div class="card text-white bg-danger mb-4 shadow">
+                <div class="card-body">
+                    <h4 class="card-title">Categories Awaiting Approval</h4>
+                    <p class="card-text fs-3">@ViewBag.PendingApprovals</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sales & Listings Charts Section -->
+    <div class="row mt-5">
+        <div class="col-md-6">
+            <h4>Sales Overview</h4>
+            <canvas id="salesChart" width="400" height="300"></canvas>
+        </div>
+
+        <div class="col-md-6">
+            <h4>Category Distribution</h4>
+            <canvas id="categoryChart" width="400" height="300"></canvas>
+        </div>
+    </div>
+
+    <!-- User and Item Management Tables Section -->
+    <div class="mt-5">
+        <h4>Recent User Registrations</h4>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Joined</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in ViewBag.RecentUsers)
+                {
+                    <tr>
+                        <td>@user.Username</td>
+                        <td>@user.Email</td>
+                        <td>@user.CreatedAt.ToString("MMM dd, yyyy")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- Chart.js library for rendering charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Example data for charts
+        var salesData = @Html.Raw(ViewBag.SalesDataJson);
+        var categoryData = @Html.Raw(ViewBag.CategoryDataJson);
+
+        // Sales Chart
+        var salesCtx = document.getElementById('salesChart').getContext('2d');
+        new Chart(salesCtx, {
+            type: 'bar',
+            data: {
+                labels: salesData.labels,
+                datasets: [{
+                    label: 'Sales',
+                    data: salesData.values,
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)'
+                }]
+            },
+            options: { responsive: true }
+        });
+
+        // Category Chart
+        var categoryCtx = document.getElementById('categoryChart').getContext('2d');
+        new Chart(categoryCtx, {
+            type: 'pie',
+            data: {
+                labels: categoryData.labels,
+                datasets: [{
+                    label: 'Categories',
+                    data: categoryData.values,
+                    backgroundColor: ['#4f46e5', '#0891b2', '#be185d', '#7c3aed']
+                }]
+            },
+            options: { responsive: true }
+        });
+    </script>
+}
+
