@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using DeclutterHub.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using DeclutterHub.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -62,3 +63,4 @@ app.MapControllerRoute(
     name: "itemsByCategory",
     pattern: "Items/Category/{categoryId}",
     defaults: new { controller = "Items", action = "ItemsByCategory" });
+

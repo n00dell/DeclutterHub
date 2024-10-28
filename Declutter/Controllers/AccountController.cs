@@ -68,6 +68,7 @@ namespace DeclutterHub.Controllers
                         new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                         new Claim(ClaimTypes.Name, user.Username),
                         new Claim(ClaimTypes.Email, user.Email),
+                        new Claim(ClaimTypes.Role, user.IsAdmin?"Admin": "User")
                     };
                     if (user.IsAdmin)
                     {

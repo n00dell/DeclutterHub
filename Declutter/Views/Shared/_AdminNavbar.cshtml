@@ -1,0 +1,48 @@
+﻿
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <!-- Logo or Brand -->
+        <a class="navbar-brand" href="/Admin/Dashboard">
+            Admin Panel
+        </a>
+
+        <!-- Toggler for mobile view -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNavbar"
+                aria-controls="adminNavbar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Navbar links -->
+        <div class="collapse navbar-collapse" id="adminNavbar">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" href="/Admin/Dashboard">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/Admin/Users">Manage Users</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/Admin/Items">Manage Items</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/Admin/Categories">Manage Categories</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/Admin/Sales">Sales Reports</a>
+                </li>
+            </ul>
+
+            <!-- Profile and Logout -->
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/Account/Profile">Profile</a>
+                </li>
+                <li class="nav-item">
+                    <form asp-action="Logout" asp-controller="Account" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-link nav-link text-white">Logout</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
