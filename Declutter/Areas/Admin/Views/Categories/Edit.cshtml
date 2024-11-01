@@ -5,7 +5,7 @@
 }
 <h2>Edit Category</h2>
 
-<form asp-action="Edit" method="post" enctype="multipart/form-data">
+<form asp-controller="Categories" asp-action="Edit" method="post" enctype="multipart/form-data">
     @Html.AntiForgeryToken()
 
     <div class="form-group">
