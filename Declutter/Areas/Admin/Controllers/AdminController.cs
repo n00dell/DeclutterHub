@@ -4,6 +4,7 @@ using DeclutterHub.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
 using Org.BouncyCastle.Utilities;
 using System.Text.Json;
 
@@ -131,7 +132,7 @@ namespace DeclutterHub.Areas.Admin.Controllers
 
             _context.User.Remove(user);
             await _context.SaveChangesAsync();
-            return RedirectToAction("Users");
+            return RedirectToAction();
         }
 
         public async Task<IActionResult> Items()
