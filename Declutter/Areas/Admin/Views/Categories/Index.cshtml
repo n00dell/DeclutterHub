@@ -1,0 +1,94 @@
+﻿@model IEnumerable<DeclutterHub.Models.Category>
+
+<h2>Manage Categories</h2>
+<p>
+    <a asp-action="CreateCategory">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Image</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var category in Model)
+        {
+            <tr>
+                <td>@category.Name</td>
+                <td>@category.Description</td>
+                <td>
+                    <img src="@category.ImageUrl" alt="Category Image" style="width: 50px; height: 50px;" />
+                </td>
+                <td>
+                    @(category.IsApproved ? "Approved" : "Pending")
+                </td>
+                <td>
+                    @if (!category.IsApproved)
+                    {
+                        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#approveModal"
+                                data-category-id="@category.Id">
+                            Approve
+                        </button>
+                    }
+                    <a asp-action="EditCategory" asp-route-id="@category.Id" class="btn btn-primary">Edit</a>
+                    <a asp-action="DeleteCategory" asp-route-id="@category.Id" class="btn btn-danger">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Modal -->
+<div class="modal fade" id="approveModal" tabindex="-1" aria-labelledby="approveModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="approveModalLabel">Approve Category</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to approve this category?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" id="confirmApproveButton">Approve</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var approveModal = document.getElementById('approveModal');
+        var confirmApproveButton = document.getElementById('confirmApproveButton');
+        var categoryId = null;
+
+        approveModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            categoryId = button.getAttribute('data-category-id');
+        });
+
+        confirmApproveButton.addEventListener('click', function () {
+            if (categoryId) {
+                fetch(`/Admin/ApproveCategory/${categoryId}`, {
+                    method: 'POST',
+                    headers: {
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    }
+                }).then(response => {
+                    if (response.ok) {
+                        location.reload(); // Refresh page to show updated status
+                    } else {
+                        alert('An error occurred while approving the category.');
+                    }
+                });
+            }
+        });
+    });
+</script>
+
+

@@ -3,6 +3,8 @@ using Microsoft.Extensions.DependencyInjection;
 using DeclutterHub.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using DeclutterHub.Models;
+using FluentAssertions.Common;
+using Microsoft.AspNetCore.Mvc.Razor;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,7 +28,13 @@ builder.Services.AddAuthorization(options =>
 // Add services for controllers with views
 builder.Services.AddControllersWithViews();
 
-
+builder.Services.Configure<RazorViewEngineOptions>(options =>
+{
+    options.AreaViewLocationFormats.Clear();
+    options.AreaViewLocationFormats.Add("/Areas/{2}/Views/{1}/{0}.cshtml");
+    options.AreaViewLocationFormats.Add("/Areas/{2}/Views/Shared/{0}.cshtml");
+    options.AreaViewLocationFormats.Add("/Views/Shared/{0}.cshtml");
+});
 
 var app = builder.Build();
 
@@ -47,20 +55,23 @@ app.UseAuthentication();  // Added this to ensure authentication middleware is u
 app.UseAuthorization();
 
 app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");
+app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+app.MapControllerRoute(
+        name: "categoryItems",
+        pattern: "Category/{categoryId}/Items",
+        defaults: new { controller = "Items", action = "ItemsByCategory" });
+app.MapControllerRoute(
+        name: "itemsByCategory",
+        pattern: "Items/Category/{categoryId}",
+        defaults: new { controller = "Items", action = "ItemsByCategory" });
+
 
 app.Run();
 
-app.MapControllerRoute(
-    name: "categoryItems",
-    pattern: "Category/{categoryId}/Items",
-    defaults: new { controller = "Items", action = "ItemsByCategory" });
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
-app.MapControllerRoute(
-    name: "itemsByCategory",
-    pattern: "Items/Category/{categoryId}",
-    defaults: new { controller = "Items", action = "ItemsByCategory" });
+
+
 

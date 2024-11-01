@@ -79,7 +79,7 @@ namespace DeclutterHub.Controllers
 
                     if (user.IsAdmin)
                     {
-                        return RedirectToAction("Dashboard", "Admin");
+                        return RedirectToAction("Index", "Dashboard", new {area = "Admin"});
                     }
                     else
                     {
