@@ -27,6 +27,7 @@ builder.Services.AddAuthorization(options =>
 });
 // Add services for controllers with views
 builder.Services.AddControllersWithViews();
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.Configure<RazorViewEngineOptions>(options =>
 {

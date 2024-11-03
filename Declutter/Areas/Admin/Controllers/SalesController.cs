@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using DeclutterHub.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DeclutterHub.Areas.Admin.Controllers
@@ -7,6 +8,8 @@ namespace DeclutterHub.Areas.Admin.Controllers
     [Area("Admin")]
     public class SalesController : Controller
     {
+        private readonly DeclutterHubContext _context;
+
         public IActionResult Index()
         {
             return View();

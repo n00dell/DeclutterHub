@@ -3,96 +3,153 @@
 @{
     ViewData["Title"] = "My Category Suggestions";
 }
-<p>
-    <a asp-action="Suggest">Suggest New</a>
-</p>
-<div class="container mx-auto px-4 py-6">
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold">My Category Suggestions</h1>
-        <a asp-action="Suggest" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
-            Suggest New Category
-        </a>
+
+<style>
+    .category-card {
+        position: relative;
+        height: 300px;
+        overflow: hidden;
+        border-radius: 8px;
+    }
+
+    .category-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .card-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.5), transparent);
+        color: white;
+        padding: 20px;
+    }
+
+        .card-overlay h5 {
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .card-overlay p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+    .no-image-placeholder {
+        width: 100%;
+        height: 100%;
+        background-color: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6c757d;
+    }
+</style>
+
+<div class="container my-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>My Category Suggestions</h2>
+            <p class="text-muted">View and track the status of categories you've suggested</p>
+        </div>
+        <div class="col-auto">
+            <a asp-action="Suggest" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Suggest New Category
+            </a>
+        </div>
     </div>
 
     @if (!Model.Any())
     {
-        <div class="bg-gray-50 rounded-lg p-6 text-center">
-            <p class="text-gray-600 mb-4">You haven't suggested any categories yet.</p>
-            <p class="text-gray-600">
-                Have an idea for a new category?
-                <a asp-action="Suggest" class="text-blue-500 hover:text-blue-600">Suggest one now!</a>
-            </p>
+        <div class="alert alert-info">
+            <p class="mb-0">You haven't suggested any categories yet. Why not <a asp-action="Suggest">suggest one now</a>?</p>
         </div>
     }
     else
     {
-        <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            @foreach (var item in Model)
-            {
-                <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                    <div class="image-container">
-                        @if (!string.IsNullOrEmpty(item.ImageUrl))
-                        {
-                            <img src="@item.ImageUrl" alt="@item.Name" class="w-full h-full object-cover">
-                        }
-                        else
-                        {
-                            <div class="w-full h-full bg-gray-200 flex items-center justify-center">
-                                <span class="text-gray-400">No Image</span>
-                            </div>
-                        }
-                    </div>
-
-                    <div class="p-4">
-                        <h3 class="text-lg font-semibold mb-2">@item.Name</h3>
-
-                        <p class="text-gray-600 text-sm mb-4">
-                            @(string.IsNullOrEmpty(item.Description)
-                                ? "No description provided"
-                                : (item.Description.Length > 100
-                                ? $"{item.Description.Substring(0, 97)}..."
-                                : item.Description))
-                        </p>
-
-                        <div class="flex flex-col gap-2">
-                            <div class="flex items-center text-sm">
-                                <span class="text-gray-500">Status:</span>
-                                @if (item.IsApproved && item.IsActive)
-                                {
-                                    <span class="ml-2 px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">
-                                        Approved & Active
-                                    </span>
-                                }
-                                else if (item.IsApproved && !item.IsActive)
-                                {
-                                    <span class="ml-2 px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">
-                                        Approved (Inactive)
-                                    </span>
-                                }
-                                else
-                                {
-                                    <span class="ml-2 px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs">
-                                        Pending Review
-                                    </span>
-                                }
-                            </div>
-
-                            <div class="flex items-center text-sm">
-                                <span class="text-gray-500">Suggested:</span>
-                                <span class="ml-2">@item.CreatedAt.ToString("MMM dd, yyyy")</span>
-                            </div>
-
-                            @if (item.IsApproved && item.IsActive)
+        @if (Model.Any(c => c.IsApproved))
+        {
+            <h4 class="mb-3">Approved Categories</h4>
+            <div class="row">
+                @foreach (var category in Model.Where(c => c.IsApproved))
+                {
+                    <div class="col-md-4 mb-4">
+                        <div class="category-card shadow">
+                            @if (!string.IsNullOrEmpty(category.ImageUrl))
                             {
-                                <div class="flex items-center text-sm">
-                                    <span class="text-gray-500">Views:</span>
-                                    <span class="ml-2">@item.ClickCount</span>
+                                <img src="@category.ImageUrl" class="category-img" alt="@category.Name" />
+                            }
+                            else
+                            {
+                                <div class="no-image-placeholder">
+                                    <i class="fas fa-image fa-3x"></i>
                                 </div>
                             }
+                            <div class="card-overlay">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    @if (category.IsActive)
+                                    {
+                                        <span class="badge bg-success">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning">Inactive</span>
+                                    }
+                                    <small>
+                                        <i class="fas fa-mouse-pointer"></i> @category.ClickCount
+                                    </small>
+                                </div>
+                                <h5>@category.Name</h5>
+                                <p>@category.Description</p>
+                                <a href="@Url.Action("ItemsByCategory", "Items", new { categoryId = category.Id })"
+                                   class="btn btn-primary btn-sm w-100">View Items</a>
+                            </div>
                         </div>
                     </div>
-                </div>
-            }
-        </div>
+                }
+            </div>
+        }
+
+        @if (Model.Any(c => !c.IsApproved))
+        {
+            <h4 class="mb-3">Pending Approval</h4>
+            <div class="row">
+                @foreach (var category in Model.Where(c => !c.IsApproved))
+                {
+                    <div class="col-md-4 mb-4">
+                        <div class="category-card shadow">
+                            @if (!string.IsNullOrEmpty(category.ImageUrl))
+                            {
+                                <img src="@category.ImageUrl" class="category-img" alt="@category.Name" />
+                            }
+                            else
+                            {
+                                <div class="no-image-placeholder">
+                                    <i class="fas fa-image fa-3x"></i>
+                                </div>
+                            }
+                            <div class="card-overlay">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="badge bg-warning">Pending Review</span>
+                                    <small>
+                                        @category.CreatedAt.ToString("MMM dd")
+                                    </small>
+                                </div>
+                                <h5>@category.Name</h5>
+                                <p>@category.Description</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
     }
 </div>
