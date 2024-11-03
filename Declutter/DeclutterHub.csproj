@@ -22,7 +22,7 @@
   <ItemGroup>
     <Folder Include="Areas\Admin\Data\" />
     <Folder Include="Areas\Admin\Models\" />
-    <Folder Include="NewFolder\" />
+    <Folder Include="Migrations\" />
     <Folder Include="Areas\Admin\Views\Sales\" />
     <Folder Include="wwwroot\images\items\" />
   </ItemGroup>

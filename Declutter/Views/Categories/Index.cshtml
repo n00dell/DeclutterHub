@@ -1,47 +1,77 @@
 ﻿@model IEnumerable<DeclutterHub.Models.Category>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "My Categories";
 }
 
-<h1>Index</h1>
+<div class="container mx-auto px-6 py-10 max-w-7xl">
+    <section class="mb-10">
+        <div class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg p-6 shadow-xl text-white">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div>
+                    <h1 class="text-4xl font-bold leading-tight">My Categories</h1>
+                    <p class="text-indigo-200">Organize and curate your personal collection</p>
+                </div>
+                <a asp-action="Suggest" class="inline-flex items-center px-5 py-2 bg-white text-indigo-600 text-base font-medium rounded-lg shadow-sm hover:bg-indigo-50 hover:shadow-md transition-all duration-300">
+                    Suggest New Category
+                </a>
+            </div>
+        </div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ClickCount)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ClickCount)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-8">
+            <div class="bg-white rounded-lg shadow-md p-5">
+                <h3 class="text-lg font-medium text-gray-700">Total Suggestions</h3>
+                <p class="text-4xl font-bold text-indigo-600">@ViewBag.TotalSuggestions</p>
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-5">
+                <h3 class="text-lg font-medium text-gray-700">Approved</h3>
+                <p class="text-4xl font-bold text-green-600">@ViewBag.ApprovedSuggestions</p>
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-5">
+                <h3 class="text-lg font-medium text-gray-700">Pending Review</h3>
+                <p class="text-4xl font-bold text-yellow-600">@ViewBag.PendingSuggestions</p>
+            </div>
+        </div>
+    </section>
+
+    @if (!Model.Any())
+    {
+        <div class="bg-white rounded-lg shadow-lg p-8 text-center">
+            <img src="/placeholder.svg?height=64&width=64" alt="No categories" class="mx-auto mb-5 h-20 w-20" />
+            <h3 class="text-2xl font-bold text-gray-900 mb-3">No Categories Yet</h3>
+            <p class="text-gray-500 mb-6">Start by suggesting your first category to help organize items better.</p>
+            <a asp-action="Suggest" class="inline-flex items-center px-8 py-3 bg-indigo-600 text-white text-base font-medium rounded-lg shadow-md hover:bg-indigo-700 hover:shadow-lg transition-all duration-300">
+                Suggest Your First Category
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            @foreach (var item in Model)
+            {
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden transition-transform transform hover:-translate-y-1 hover:shadow-xl">
+                    <div class="relative h-48">
+                        @if (!string.IsNullOrEmpty(item.ImageUrl))
+                        {
+                            <img src="@item.ImageUrl" alt="@item.Name" class="w-full h-full object-cover transition-transform duration-300 hover:scale-105" />
+                        }
+                        else
+                        {
+                            <img src="/placeholder.svg" alt="Placeholder image" class="w-full h-full object-cover opacity-50" />
+                        }
+                        <div class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black via-transparent to-transparent p-4">
+                            <h3 class="text-white text-xl font-bold">@item.Name</h3>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <p class="text-gray-700">@item.Description</p>
+                        <a asp-action="Details" asp-route-id="@item.Id" class="block mt-4 text-indigo-600 hover:underline">
+                            View Details
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

@@ -61,7 +61,7 @@ namespace DeclutterHub.Controllers
         // GET: Items/Create
         public IActionResult Create()
         {
-            ViewData["CategoryId"] = new SelectList(_context.Category, "Id", "Name");
+            ViewData["CategoryId"] = new SelectList(_context.Category.Where(c => c.IsApproved), "Id", "Name");
             ViewData["UserId"] = new SelectList(_context.User, "Id", "Username");
             return View();
         }
@@ -75,52 +75,60 @@ namespace DeclutterHub.Controllers
         {
             if (ModelState.IsValid)
             {
-
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                var item = new Item
+                var selectedCategory = await _context.Category.FindAsync(model.CategoryId);
+                if (selectedCategory == null || !selectedCategory.IsApproved)
                 {
-                    Name = model.Name,
-                    Description = model.Description,
-                    Price = model.Price,
-                    IsSold = false,
-                    CreatedAt = DateTime.UtcNow,
-                    Location = model.Location,
-                    PhoneNumber = model.PhoneNumber.ToString(),
-                    IsNegotiable = model.IsNegotiable,
-                    Condition = model.Condition,
-                    CategoryId = model.CategoryId,
-                    UserId = int.Parse(userId) //use the logged-in user ID
-                };
-                _context.Add(item);
-                await _context.SaveChangesAsync();
-
-                //Handle image uploads
-                if (model.ImageFiles != null &&  model.ImageFiles.Count > 0)
-                {
-                    foreach (var ImageFile in model.ImageFiles)
-                    {
-                        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/items");
-                        Directory.CreateDirectory(uploadsFolder);//ensure folder exists
-
-                        var uniqueFileName = Guid.NewGuid().ToString() + "_" + ImageFile.FileName;
-                        var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-                        using(var stream = new FileStream(filePath, FileMode.Create))
-                        {
-                            await ImageFile.CopyToAsync(stream);
-                        }
-                        var image = new Image
-                        {
-                            Url = $"/images/items/{uniqueFileName}",
-                            ItemId = item.Id
-                        };
-                        _context.Add(image);
-                    }
-                    await _context.SaveChangesAsync();
+                    ModelState.AddModelError("CategoryId", "The selected category is not approved.");
                 }
-                return RedirectToAction(nameof(Index));
+                else
+                {
+
+                    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                    var item = new Item
+                    {
+                        Name = model.Name,
+                        Description = model.Description,
+                        Price = model.Price,
+                        IsSold = false,
+                        CreatedAt = DateTime.UtcNow,
+                        Location = model.Location,
+                        PhoneNumber = model.PhoneNumber.ToString(),
+                        IsNegotiable = model.IsNegotiable,
+                        Condition = model.Condition,
+                        CategoryId = model.CategoryId,
+                        UserId = int.Parse(userId) //use the logged-in user ID
+                    };
+                    _context.Add(item);
+                    await _context.SaveChangesAsync();
+
+                    //Handle image uploads
+                    if (model.ImageFiles != null && model.ImageFiles.Count > 0)
+                    {
+                        foreach (var ImageFile in model.ImageFiles)
+                        {
+                            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/items");
+                            Directory.CreateDirectory(uploadsFolder);//ensure folder exists
+
+                            var uniqueFileName = Guid.NewGuid().ToString() + "_" + ImageFile.FileName;
+                            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                            using (var stream = new FileStream(filePath, FileMode.Create))
+                            {
+                                await ImageFile.CopyToAsync(stream);
+                            }
+                            var image = new Image
+                            {
+                                Url = $"/images/items/{uniqueFileName}",
+                                ItemId = item.Id
+                            };
+                            _context.Add(image);
+                        }
+                        await _context.SaveChangesAsync();
+                    }
+                    return RedirectToAction(nameof(Index));
+                }
             }
-            ViewData["CategoryId"] = new SelectList(_context.Category, "Id", "Name", model.CategoryId);
+            ViewData["CategoryId"] = new SelectList(_context.Category.Where(c => c.IsApproved), "Id", "Name", model.CategoryId);
             return View(model);
             
         }
@@ -138,7 +146,7 @@ namespace DeclutterHub.Controllers
             {
                 return NotFound();
             }
-            ViewData["CategoryId"] = new SelectList(_context.Category, "Id", "Id", item.CategoryId);
+            ViewData["CategoryId"] = new SelectList(_context.Category.Where(c => c.IsApproved), "Id", "Id", item.CategoryId);
             ViewData["UserId"] = new SelectList(_context.User, "Id", "Id", item.UserId);
             return View(item);
         }
@@ -148,7 +156,7 @@ namespace DeclutterHub.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,Price,IsSold,CreatedAt,Location,phoneNumber,IsNegotiable,Condition,CategoryId,UserId")] Item item)
+        public async Task<IActionResult> Edit(int id,  EditItemViewModel item)
         {
             if (id != item.Id)
             {
@@ -157,26 +165,50 @@ namespace DeclutterHub.Controllers
 
             if (ModelState.IsValid)
             {
-                try
+                var selectedCategory = await _context.Category.FindAsync(item.CategoryId);
+                if (selectedCategory == null || !selectedCategory.IsApproved)
                 {
-                    _context.Update(item);
-                    await _context.SaveChangesAsync();
+                    ModelState.AddModelError("CategoryId", "The selected category is not approved.");
                 }
-                catch (DbUpdateConcurrencyException)
+                else
                 {
-                    if (!ItemExists(item.Id))
+                    var itemToUpdate = await _context.Item.FindAsync(id);
+                    if (itemToUpdate == null)
                     {
                         return NotFound();
                     }
-                    else
+
+                    // Update item properties
+                    itemToUpdate.Name = item.Name;
+                    itemToUpdate.Description = item.Description;
+                    itemToUpdate.Price = item.Price;
+                    itemToUpdate.Location = item.Location;
+                    itemToUpdate.PhoneNumber = item.PhoneNumber.ToString();
+                    itemToUpdate.IsNegotiable = item.IsNegotiable;
+                    itemToUpdate.Condition = item.Condition;
+                    itemToUpdate.CategoryId = item.CategoryId;
+
+                    try
                     {
-                        throw;
+                        await _context.SaveChangesAsync();
                     }
+                    catch (DbUpdateConcurrencyException)
+                    {
+                        if (!ItemExists(itemToUpdate.Id))
+                        {
+                            return NotFound();
+                        }
+                        else
+                        {
+                            throw;
+                        }
+                    }
+                    return RedirectToAction(nameof(Index));
                 }
-                return RedirectToAction(nameof(Index));
             }
-            ViewData["CategoryId"] = new SelectList(_context.Category, "Id", "Id", item.CategoryId);
-            ViewData["UserId"] = new SelectList(_context.User, "Id", "Id", item.UserId);
+
+            // Populate approved categories again if model state is invalid
+            ViewData["CategoryId"] = new SelectList(_context.Category.Where(c => c.IsApproved), "Id", "Name", item.CategoryId);
             return View(item);
         }
 

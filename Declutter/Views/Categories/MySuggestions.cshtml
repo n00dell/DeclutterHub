@@ -1,0 +1,98 @@
+﻿@model IEnumerable<DeclutterHub.Models.Category>
+
+@{
+    ViewData["Title"] = "My Category Suggestions";
+}
+<p>
+    <a asp-action="Suggest">Suggest New</a>
+</p>
+<div class="container mx-auto px-4 py-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold">My Category Suggestions</h1>
+        <a asp-action="Suggest" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+            Suggest New Category
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="bg-gray-50 rounded-lg p-6 text-center">
+            <p class="text-gray-600 mb-4">You haven't suggested any categories yet.</p>
+            <p class="text-gray-600">
+                Have an idea for a new category?
+                <a asp-action="Suggest" class="text-blue-500 hover:text-blue-600">Suggest one now!</a>
+            </p>
+        </div>
+    }
+    else
+    {
+        <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            @foreach (var item in Model)
+            {
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <div class="image-container">
+                        @if (!string.IsNullOrEmpty(item.ImageUrl))
+                        {
+                            <img src="@item.ImageUrl" alt="@item.Name" class="w-full h-full object-cover">
+                        }
+                        else
+                        {
+                            <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                                <span class="text-gray-400">No Image</span>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="p-4">
+                        <h3 class="text-lg font-semibold mb-2">@item.Name</h3>
+
+                        <p class="text-gray-600 text-sm mb-4">
+                            @(string.IsNullOrEmpty(item.Description)
+                                ? "No description provided"
+                                : (item.Description.Length > 100
+                                ? $"{item.Description.Substring(0, 97)}..."
+                                : item.Description))
+                        </p>
+
+                        <div class="flex flex-col gap-2">
+                            <div class="flex items-center text-sm">
+                                <span class="text-gray-500">Status:</span>
+                                @if (item.IsApproved && item.IsActive)
+                                {
+                                    <span class="ml-2 px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">
+                                        Approved & Active
+                                    </span>
+                                }
+                                else if (item.IsApproved && !item.IsActive)
+                                {
+                                    <span class="ml-2 px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">
+                                        Approved (Inactive)
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="ml-2 px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs">
+                                        Pending Review
+                                    </span>
+                                }
+                            </div>
+
+                            <div class="flex items-center text-sm">
+                                <span class="text-gray-500">Suggested:</span>
+                                <span class="ml-2">@item.CreatedAt.ToString("MMM dd, yyyy")</span>
+                            </div>
+
+                            @if (item.IsApproved && item.IsActive)
+                            {
+                                <div class="flex items-center text-sm">
+                                    <span class="text-gray-500">Views:</span>
+                                    <span class="ml-2">@item.ClickCount</span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

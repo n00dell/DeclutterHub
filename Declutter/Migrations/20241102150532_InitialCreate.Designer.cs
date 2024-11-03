@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DeclutterHub.Migrations
 {
     [DbContext(typeof(DeclutterHubContext))]
-    [Migration("20241028173708_stringPhone")]
-    partial class stringPhone
+    [Migration("20241102150532_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -36,6 +36,9 @@ namespace DeclutterHub.Migrations
                     b.Property<int>("ClickCount")
                         .HasColumnType("integer");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
@@ -50,6 +53,9 @@ namespace DeclutterHub.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -125,9 +131,6 @@ namespace DeclutterHub.Migrations
                         .HasColumnType("numeric");
 
                     b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("phoneNumber")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");

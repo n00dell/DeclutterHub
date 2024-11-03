@@ -21,6 +21,7 @@ namespace Declutter.Controllers
         {
             var categories = _context.Category
                                      .OrderByDescending(c => c.ClickCount)
+                                     .Where(c => c.IsApproved == true)
                                      .Take(10) // Adjust the number of categories shown
                                      .ToList();
             return View(categories);

@@ -74,10 +74,11 @@
 
         confirmApproveButton.addEventListener('click', function () {
             if (categoryId) {
-                fetch(`/Admin/ApproveCategory/${categoryId}`, {
+                fetch(`/Admin/Categories/Approve/${categoryId}`, {
                     method: 'POST',
                     headers: {
-                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val(),
+                        'Content-Type': 'application/json' // Ensure proper content type
                     }
                 }).then(response => {
                     if (response.ok) {
@@ -85,10 +86,14 @@
                     } else {
                         alert('An error occurred while approving the category.');
                     }
+                }).catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while approving the category.');
                 });
             }
         });
     });
 </script>
+
 
 

@@ -20,6 +20,7 @@ namespace DeclutterHub.Views.Shared.Components.CategoryDropdown
             // Fetch categories from the database, selecting only the necessary fields
             var categories = await _context.Category
                                            .OrderBy(c => c.Name)
+                                           .Where(c => c.IsApproved)
                                            .Select(c => new { c.Id, c.Name })
                                            .ToListAsync();
 
