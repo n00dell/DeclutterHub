@@ -12,6 +12,7 @@
         public string Condition { get; set; }
         public bool IsVerified { get; set; }
         public int CategoryId { get; set; }
+        public bool IsSold { get; set; }
         public ICollection<Image> Images { get; set; }
         public List<IFormFile>? NewImages { get; set; }  // Add this property for new image uploads
         public List<int>? ImagesToDelete { get; set; }

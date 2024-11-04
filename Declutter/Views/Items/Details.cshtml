@@ -89,19 +89,19 @@
 
                 <script>
                     function saveItem(itemId) {
-                      fetch(`/Items/SaveItem/${itemId}`, { method: 'POST' })
-        .then(response => {
-            if (!response.ok) {
-                return response.text().then(text => {
-                    throw new Error(text || "Unable to save item");
-                });
-            }
-            alert("Item saved!");
-        })
-        .catch(error => {
-            console.error("Error saving item:", error);
-            alert("Error: " + error.message);
-        });
+                        fetch(`/Items/SaveItem/${itemId}`, { method: 'POST' })
+                            .then(response => {
+                                if (!response.ok) {
+                                    return response.text().then(text => {
+                                        throw new Error(text || "Unable to save item");
+                                    });
+                                }
+                                alert("Item saved!");
+                            })
+                            .catch(error => {
+                                console.error("Error saving item:", error);
+                                alert("Error: " + error.message);
+                            });
 }
 
                 </script>

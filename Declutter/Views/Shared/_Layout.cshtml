@@ -44,11 +44,9 @@
                         </li>
                     </ul>
                     <form class="d-flex" asp-controller="Items" asp-action="ItemsByCategory" method="get">
-                        <div class="input-group">
-                            @await Component.InvokeAsync("CategoryDropdown") 
-                            <input class="form-control" type="search" name="searchQuery" placeholder="Search" aria-label="Search">
-                            <button class="btn btn-outline-light" type="submit">Search</button>
-                        </div>
+                        @await Component.InvokeAsync("CategoryDropdown")
+                        <input class="form-control me-2" type="search" name="searchQuery" placeholder="Search" aria-label="Search">
+                        <button class="btn btn-search" type="submit">Search</button>
                     </form>
 
                 </div>

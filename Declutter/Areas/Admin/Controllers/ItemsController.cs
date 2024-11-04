@@ -39,6 +39,7 @@ namespace DeclutterHub.Areas.Admin.Controllers
                 Location = item.Location,
                 PhoneNumber = item.PhoneNumber,
                 IsNegotiable = item.IsNegotiable,
+                IsSold = item.IsSold,
                 Condition = item.Condition,
                 IsVerified = item.IsVerified,
                 CategoryId = item.CategoryId,
@@ -88,6 +89,7 @@ namespace DeclutterHub.Areas.Admin.Controllers
                     existingItem.Location = viewModel.Location;
                     existingItem.PhoneNumber = viewModel.PhoneNumber;
                     existingItem.IsNegotiable = viewModel.IsNegotiable;
+                    existingItem.IsSold = viewModel.IsSold;
                     existingItem.Condition = viewModel.Condition;
                     existingItem.IsVerified = viewModel.IsVerified;
                     existingItem.CategoryId = viewModel.CategoryId;
