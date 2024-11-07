@@ -350,7 +350,8 @@ namespace DeclutterHub.Controllers
             var sale = new Sale
             {
                 ItemId = item.Id,
-                SaleDate = DateTime.UtcNow
+                SaleDate = DateTime.UtcNow,
+                
             };
             _context.Sale.Add(sale);
             await _context.SaveChangesAsync();

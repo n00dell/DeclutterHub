@@ -8,5 +8,6 @@
 
         // Navigation property for the related item
         public virtual Item Item { get; set; }
+        
     }
 }

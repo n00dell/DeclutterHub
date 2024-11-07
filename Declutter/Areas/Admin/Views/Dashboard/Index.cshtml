@@ -96,11 +96,8 @@
             labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
             values: [5, 10, 8, 15, 12, 20]
         };
-
-        var categoryData = {
-            labels: ["Electronics", "Furniture", "Clothing", "Books"],
-            values: [30, 20, 25, 15]
-        };
+        var salesData = JSON.parse('@Html.Raw(ViewBag.SalesDataJson)');
+        var categoryData = JSON.parse('@Html.Raw(ViewBag.CategoryDataJson)');
 
         // Sales Chart (Line Chart)
         var salesCtx = document.getElementById('salesChart').getContext('2d');

@@ -20,6 +20,7 @@ namespace DeclutterHub.Areas.Admin.Controllers
 
         public async Task<IActionResult> Index()
         {
+            // Other ViewBag data
             ViewBag.TotalUsers = await _context.User.CountAsync();
             ViewBag.TotalItems = await _context.Item.CountAsync();
             ViewBag.TotalSales = await _context.Sale.CountAsync();
@@ -30,17 +31,38 @@ namespace DeclutterHub.Areas.Admin.Controllers
                 .Take(5)
                 .ToListAsync();
 
-            ViewBag.SalesDataJson = JsonSerializer.Serialize(new
-            {
-                label = new[] { "Jan", "Feb", "Mar", "Apr" },
-                values = new[] { 10, 20, 15, 30 }
-            });
+            // Retrieve actual category data
+            var categoryData = await _context.Category
+                .Where(c => c.IsApproved)  // Assuming only approved categories should be displayed
+                .Select(c => new
+                {
+                    Name = c.Name,
+                    ItemCount = c.Items.Count()
+                })
+                .ToListAsync();
+
             ViewBag.CategoryDataJson = JsonSerializer.Serialize(new
             {
-                label = new[] { "Electronics", "Furniture", "Clothing", "Others" },
-                value = new[] { 40, 20, 25, 15 }
+                labels = categoryData.Select(c => c.Name).ToArray(),
+                values = categoryData.Select(c => c.ItemCount).ToArray()
             });
+            var salesData = await _context.Sale
+        .GroupBy(s => s.SaleDate.Month)
+        .OrderBy(g => g.Key)
+        .Select(g => new
+        {
+            Month = g.Key, // Month number (1 for Jan, 2 for Feb, etc.)
+            SalesCount = g.Count(),
+            
+        })
+        .ToListAsync();
 
+            ViewBag.SalesDataJson = JsonSerializer.Serialize(new
+            {
+                labels = salesData.Select(s => System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(s.Month)).ToArray(),
+                salesCount = salesData.Select(s => s.SalesCount).ToArray(),
+                
+            });
             ViewData["Layout"] = "_AdminLayout";
             return View("/Areas/Admin/Views/Dashboard/Index.cshtml");
         }
