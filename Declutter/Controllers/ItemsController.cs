@@ -25,7 +25,11 @@ namespace DeclutterHub.Controllers
         // GET: Items
         public async Task<IActionResult> Index()
         {
-            var declutterHubContext = _context.Item.Include(i => i.Category).Include(i => i.User);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var declutterHubContext = _context.Item
+                .Where(i => i.UserId == int.Parse(userId))
+                .Include(i => i.Category)
+                .Include(i => i.User);
             return View(await declutterHubContext.ToListAsync());
         }
 
@@ -59,6 +63,7 @@ namespace DeclutterHub.Controllers
         }
 
         // GET: Items/Create
+        [Authorize]
         public IActionResult Create()
         {
             ViewData["CategoryId"] = new SelectList(_context.Category.Where(c => c.IsApproved), "Id", "Name");
@@ -183,7 +188,7 @@ namespace DeclutterHub.Controllers
                     itemToUpdate.Description = item.Description;
                     itemToUpdate.Price = item.Price;
                     itemToUpdate.Location = item.Location;
-                    itemToUpdate.PhoneNumber = item.PhoneNumber.ToString();
+                    itemToUpdate.PhoneNumber = item.PhoneNumber;
                     itemToUpdate.IsNegotiable = item.IsNegotiable;
                     itemToUpdate.Condition = item.Condition;
                     itemToUpdate.CategoryId = item.CategoryId;
@@ -208,7 +213,7 @@ namespace DeclutterHub.Controllers
             }
 
             // Populate approved categories again if model state is invalid
-            ViewData["CategoryId"] = new SelectList(_context.Category.Where(c => c.IsApproved), "Id", "Name", item.CategoryId);
+            ViewData["CategoryId"] = new SelectList(await _context.Category.Where(c => c.IsApproved).ToListAsync(), "Id", "Name", item.CategoryId);
             return View(item);
         }
 
@@ -330,6 +335,27 @@ namespace DeclutterHub.Controllers
         private bool ItemExists(int id)
         {
             return _context.Item.Any(e => e.Id == id);
+        }
+        [HttpPost]
+        public async Task<IActionResult> MarkAsSold(int id)
+        {
+            var item = await _context.Item.FindAsync(id);
+            if (item == null)
+            {
+                return NotFound();
+            }
+
+            item.IsSold = true;
+            _context.Update(item);
+            var sale = new Sale
+            {
+                ItemId = item.Id,
+                SaleDate = DateTime.UtcNow
+            };
+            _context.Sale.Add(sale);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
         }
     }
 }
