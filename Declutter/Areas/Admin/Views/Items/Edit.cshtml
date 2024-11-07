@@ -45,9 +45,15 @@
         <input asp-for="IsNegotiable" type="checkbox" />
         <span asp-validation-for="IsNegotiable" class="text-danger"></span>
     </div>
-    <div class="form-group">
-        <label asp-for="Condition"></label>
-        <input asp-for="Condition" class="form-control" />
+    <div class="form-group mb-3">
+        <label asp-for="Condition" class="control-label"></label>
+        <select asp-for="Condition" class="form-control">
+            <option value="New">New</option>
+            <option value="LikeNew">Like New</option>
+            <option value="Good">Good</option>
+            <option value="Fair">Fair</option>
+            <option value="Poor">Poor</option>
+        </select>
         <span asp-validation-for="Condition" class="text-danger"></span>
     </div>
     <div class="form-group">

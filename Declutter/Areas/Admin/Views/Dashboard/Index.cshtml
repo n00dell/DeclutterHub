@@ -1,6 +1,6 @@
 ﻿@{
     ViewData["Title"] = "Admin Dashboard";
-    Layout = "/Areas/Admin/Views/Shared/_AdminLayout.cshtml";  // Assuming you're using a main layout file
+    Layout = "/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
 <div class="container mt-5">
@@ -91,26 +91,46 @@
     <!-- Chart.js library for rendering charts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Example data for charts
-        var salesData = @Html.Raw(ViewBag.SalesDataJson);
-        var categoryData = @Html.Raw(ViewBag.CategoryDataJson);
+        // Dummy data for charts
+        var salesData = {
+            labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            values: [5, 10, 8, 15, 12, 20]
+        };
 
-        // Sales Chart
+        var categoryData = {
+            labels: ["Electronics", "Furniture", "Clothing", "Books"],
+            values: [30, 20, 25, 15]
+        };
+
+        // Sales Chart (Line Chart)
         var salesCtx = document.getElementById('salesChart').getContext('2d');
         new Chart(salesCtx, {
-            type: 'bar',
+            type: 'line',
             data: {
                 labels: salesData.labels,
                 datasets: [{
                     label: 'Sales',
                     data: salesData.values,
-                    backgroundColor: 'rgba(54, 162, 235, 0.5)'
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 2,
+                    fill: true
                 }]
             },
-            options: { responsive: true }
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        beginAtZero: true
+                    },
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
         });
 
-        // Category Chart
+        // Category Chart (Pie Chart)
         var categoryCtx = document.getElementById('categoryChart').getContext('2d');
         new Chart(categoryCtx, {
             type: 'pie',
@@ -126,4 +146,3 @@
         });
     </script>
 }
-
