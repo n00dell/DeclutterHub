@@ -1,0 +1,86 @@
+﻿@model DeclutterHub.Models.ItemViewModel
+@{
+    ViewData["Title"] = "Edit Item";
+    Layout = "/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2>Post an Item</h2>
+
+<form asp-action="Create" method="post" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+
+    <div class="form-group">
+        <label asp-for="Name"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Description"></label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Price"></label>
+        <input asp-for="Price" class="form-control" />
+        <span asp-validation-for="Price" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Location"></label>
+        <input asp-for="Location" class="form-control" />
+        <span asp-validation-for="Location" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="PhoneNumber"></label>
+        <input asp-for="PhoneNumber" class="form-control" />
+        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="IsNegotiable"></label>
+        <input asp-for="IsNegotiable" type="checkbox" />
+        <span asp-validation-for="IsNegotiable" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="Condition" class="control-label"></label>
+        <select asp-for="Condition" class="form-control">
+            <option value="New">New</option>
+            <option value="LikeNew">Like New</option>
+            <option value="Good">Good</option>
+            <option value="Fair">Fair</option>
+            <option value="Poor">Poor</option>
+        </select>
+        <span asp-validation-for="Condition" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="CategoryId"></label>
+        <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.CategoryId"></select>
+        <span asp-validation-for="CategoryId" class="text-danger"></span>
+    </div>
+
+    @* <div class="form-group">
+    <label asp-for="UserId"></label>
+    <select asp-for="UserId" class="form-control" asp-items="ViewBag.UserId"></select>
+    <span asp-validation-for="UserId" class="text-danger"></span>
+    </div> *@
+
+    <div class="form-group">
+        <label asp-for="ImageFiles"></label>
+        <input asp-for="ImageFiles" type="file" class="form-control-file" multiple />
+        <span asp-validation-for="ImageFiles" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create Item</button>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+

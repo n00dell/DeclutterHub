@@ -39,7 +39,7 @@ namespace DeclutterHub.Areas.Admin.Controllers
 
             var viewModel = new EditUserViewModel
             {
-                Id = user.Id,
+                
                 Username = user.Username,
                 Email = user.Email
             };
@@ -102,7 +102,7 @@ namespace DeclutterHub.Areas.Admin.Controllers
 
         private bool UserExists(int id)
         {
-            return _context.User.Any(e => e.Id == id);
+            return _context.User.Any(e => e.Id == id.ToString());
         }
     }
 }
