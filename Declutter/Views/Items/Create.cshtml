@@ -4,7 +4,7 @@
 
 <form asp-action="Create" method="post" enctype="multipart/form-data">
     @Html.AntiForgeryToken()
-
+    <div asp-validation-summary="All"></div>
     <div class="form-group">
         <label asp-for="Name"></label>
         <input asp-for="Name" class="form-control" />
@@ -59,17 +59,13 @@
         <span asp-validation-for="CategoryId" class="text-danger"></span>
     </div>
 
-    @* <div class="form-group">
-        <label asp-for="UserId"></label>
-        <select asp-for="UserId" class="form-control" asp-items="ViewBag.UserId"></select>
-        <span asp-validation-for="UserId" class="text-danger"></span>
-    </div> *@
-
     <div class="form-group">
         <label asp-for="ImageFiles"></label>
         <input asp-for="ImageFiles" type="file" class="form-control-file" multiple />
         <span asp-validation-for="ImageFiles" class="text-danger"></span>
     </div>
+    <input asp-for="UserId" type="hidden" />
+
 
     <button type="submit" class="btn btn-primary">Create Item</button>
 </form>

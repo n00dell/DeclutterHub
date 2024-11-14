@@ -16,12 +16,14 @@ namespace DeclutterHub.Controllers
         private readonly DeclutterHubContext _context;
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public AccountController(DeclutterHubContext context, UserManager<User> userManager, SignInManager<User> signInManager)
+        public AccountController(DeclutterHubContext context, UserManager<User> userManager, SignInManager<User> signInManager, RoleManager<IdentityRole> roleManager)
         {
             _context = context;
             _userManager = userManager;
             _signInManager = signInManager;
+            _roleManager = roleManager;
         }
 
         // GET: /Account/SignUp
@@ -63,7 +65,6 @@ namespace DeclutterHub.Controllers
                     UserName = model.UserName,
                     Email = model.Email,
                     EmailConfirmed = false, // Assuming email verification is pending
-                    IsAdmin = false, // Assuming the user is not an admin by default
                     CreatedAt = DateTime.UtcNow, // Set the account creation date
                     Avatar = null, // Set a default value for Avatar, assuming it's nullable
                 };
@@ -74,10 +75,17 @@ namespace DeclutterHub.Controllers
                 if (result.Succeeded)
                 {
                     // You can also assign the user to a default role (e.g., "User")
+                    var roleExists = await _roleManager.RoleExistsAsync("User");
+                    if (!roleExists)
+                    {
+                        await _roleManager.CreateAsync(new IdentityRole("User"));
+                    }
+
+                    // Assign the user to the "User" role
                     await _userManager.AddToRoleAsync(user, "User");
 
                     // Redirect to login or home page after successful registration
-                    return RedirectToAction("Login", "Account");
+                    return RedirectToAction("Index", "Home");
                 }
 
                 // If registration fails, show errors

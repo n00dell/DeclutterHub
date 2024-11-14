@@ -134,8 +134,9 @@ namespace DeclutterHub.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("numeric");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("UserId1")
                         .HasColumnType("text");
@@ -143,6 +144,8 @@ namespace DeclutterHub.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
+
+                    b.HasIndex("UserId");
 
                     b.HasIndex("UserId1");
 
@@ -219,9 +222,6 @@ namespace DeclutterHub.Migrations
                         .HasColumnType("character varying(256)");
 
                     b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsAdmin")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("LockoutEnabled")
@@ -421,6 +421,12 @@ namespace DeclutterHub.Migrations
                         .IsRequired();
 
                     b.HasOne("DeclutterHub.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DeclutterHub.Models.User", null)
                         .WithMany("ListedItems")
                         .HasForeignKey("UserId1");
 

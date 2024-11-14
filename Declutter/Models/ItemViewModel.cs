@@ -27,7 +27,7 @@ namespace DeclutterHub.Models
         public int CategoryId { get; set; }
 
         [Required]
-        public int UserId { get; set; }
+        public string UserId { get; set; }
 
         // Image upload field
         [Display(Name = "Upload Images")]

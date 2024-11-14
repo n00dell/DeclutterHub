@@ -24,5 +24,19 @@ namespace DeclutterHub.Data
         public DbSet<DeclutterHub.Models.Sale> Sale { get; set; } = default!;
 
         public DbSet<DeclutterHub.Models.SavedItem> SavedItem { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder); // Call base class method
+
+            // Configure the foreign key explicitly
+            modelBuilder.Entity<Item>()
+                .HasOne(i => i.User)  // Item has one User (ApplicationUser)
+                .WithMany()  // Assuming ApplicationUser has many items (no navigation property needed in ApplicationUser)
+                .HasForeignKey(i => i.UserId)  // Foreign key is UserId in Item
+                .IsRequired(); // Make it required if necessary
+
+            // Add other custom configurations as needed...
+        }
     }
 }

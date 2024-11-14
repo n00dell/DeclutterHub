@@ -63,7 +63,7 @@ namespace DeclutterHub.Areas.Admin.Controllers
                         IsNegotiable = model.IsNegotiable,
                         Condition = model.Condition,
                         CategoryId = model.CategoryId,
-                        UserId = int.Parse(userId) //use the logged-in user ID
+                        UserId = userId //use the logged-in user ID
                     };
                     _context.Add(item);
                     await _context.SaveChangesAsync();

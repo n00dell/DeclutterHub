@@ -1,4 +1,6 @@
-﻿namespace DeclutterHub.Models
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+
+namespace DeclutterHub.Models
 {
     public class Item
     {
@@ -24,7 +26,7 @@
         public virtual Category Category { get; set; }
 
         // Foreign key for User (who listed the item)
-        public int UserId { get; set; }
+        public string UserId { get; set; }
         public virtual User User { get; set; }
         public virtual ICollection<Image> Images { get; set; } = new List<Image>();
         public bool IsVerified {  get; set; }

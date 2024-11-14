@@ -28,7 +28,7 @@ namespace DeclutterHub.Controllers
         // GET: Items
         public async Task<IActionResult> Index()
         {
-            var user = _userManager.GetUserAsync(User);
+            var user =await _userManager.GetUserAsync(User);
 
             if (user == null)
             {
@@ -74,8 +74,18 @@ namespace DeclutterHub.Controllers
         [Authorize]
         public IActionResult Create()
         {
+            var user = _userManager.GetUserAsync(User).Result; // Get the currently authenticated user
+            if (user == null)
+            {
+                return Challenge(); // Ensure user is authenticated
+            }
+
+            var viewModel = new ItemViewModel
+            {
+                UserId = user.Id // Assign the UserId to the ViewModel
+            };
             ViewData["CategoryId"] = new SelectList(_context.Category.Where(c => c.IsApproved), "Id", "Name");
-            return View();
+            return View(viewModel);
         }
 
         // POST: Items/Create
@@ -85,11 +95,12 @@ namespace DeclutterHub.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = _userManager.GetUserAsync(User);
+                var user = await _userManager.GetUserAsync(User);
                 if (user == null)
                 {
-                    return Challenge();
+                    return Challenge(); // Ensure the user is authenticated
                 }
+
                 var selectedCategory = await _context.Category.FindAsync(model.CategoryId);
                 if (selectedCategory == null || !selectedCategory.IsApproved)
                 {
