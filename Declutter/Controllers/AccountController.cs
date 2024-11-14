@@ -110,18 +110,7 @@ namespace DeclutterHub.Controllers
                     if (result.Succeeded)
                     {
                         // Add custom claims if needed
-                        if (user.IsAdmin)
-                        {
-                            await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, "Admin"));
-                        }
-
-                        if (user.EmailConfirmed)
-                        {
-                            await _userManager.AddClaimAsync(user, new Claim("EmailConfirmed", "true"));
-                        }
-
-                        // Redirect based on user role
-                        if (user.IsAdmin)
+                        if (await _userManager.IsInRoleAsync(user, "Admin"))
                         {
                             return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
                         }
@@ -152,7 +141,7 @@ namespace DeclutterHub.Controllers
         public async Task<IActionResult> Logout()
         {
             //sign out the user
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            await _signInManager.SignOutAsync();
             return RedirectToAction("Login", "Account");
         }
         

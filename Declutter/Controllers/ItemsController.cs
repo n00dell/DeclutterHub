@@ -28,9 +28,14 @@ namespace DeclutterHub.Controllers
         // GET: Items
         public async Task<IActionResult> Index()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = _userManager.GetUserAsync(User);
+
+            if (user == null)
+            {
+                return Challenge();
+            }
             var declutterHubContext = _context.Item
-                .Where(i => i.UserId == int.Parse(userId))
+                .Where(i => i.UserId == user.Id)
                 .Include(i => i.Category)
                 .Include(i => i.User);
             return View(await declutterHubContext.ToListAsync());
@@ -80,6 +85,11 @@ namespace DeclutterHub.Controllers
         {
             if (ModelState.IsValid)
             {
+                var user = _userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    return Challenge();
+                }
                 var selectedCategory = await _context.Category.FindAsync(model.CategoryId);
                 if (selectedCategory == null || !selectedCategory.IsApproved)
                 {
@@ -87,7 +97,7 @@ namespace DeclutterHub.Controllers
                 }
                 else
                 {
-                    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                    
                     var item = new Item
                     {
                         Name = model.Name,
@@ -100,7 +110,7 @@ namespace DeclutterHub.Controllers
                         IsNegotiable = model.IsNegotiable,
                         Condition = model.Condition,
                         CategoryId = model.CategoryId,
-                        UserId = int.Parse(userId) // Ensure the logged-in user's ID is properly parsed
+                        UserId = user.Id // Ensure the logged-in user's ID is properly parsed
                     };
                     _context.Add(item);
                     await _context.SaveChangesAsync();
@@ -294,13 +304,14 @@ namespace DeclutterHub.Controllers
         {
             if (ModelState.IsValid)
             {
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                if (userId == null)
+                var user = _userManager.GetUserAsync(User);
+                if (user == null)
                 {
-                    return BadRequest("User not authenticated");
+                    //return BadRequest("User not authenticated");
+                    return Challenge();
                 }
 
-                var savedItem = new SavedItem { UserId = int.Parse(userId), ItemId = id, SavedAt = DateTime.UtcNow };
+                var savedItem = new SavedItem { UserId = user.Id, ItemId = id, SavedAt = DateTime.UtcNow };
                 _context.SavedItem.Add(savedItem);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
