@@ -54,7 +54,7 @@ namespace DeclutterHub.Areas.Admin.Controllers
             var users = await _context.User.ToListAsync();
             foreach (var user in users)
             {
-                TempData[$"User_{user.Id}"] = $"Username: {user.Username}, Email: {user.Email}";
+                TempData[$"User_{user.Id}"] = $"Username: {user.UserName}, Email: {user.Email}";
             }
             return View(users);
         }
@@ -68,7 +68,7 @@ namespace DeclutterHub.Areas.Admin.Controllers
 
             var viewModel = new EditUserViewModel
             {
-                Username = user.Username,
+                UserName = user.UserName,
                 Email = user.Email
             };
 
@@ -77,7 +77,7 @@ namespace DeclutterHub.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditUser(int id, [Bind("Id,Username,Email")] EditUserViewModel viewModel)
+        public async Task<IActionResult> EditUser(string id, [Bind("Id,Username,Email")] EditUserViewModel viewModel)
         {
             if (id != viewModel.Id)
             {
@@ -94,7 +94,7 @@ namespace DeclutterHub.Areas.Admin.Controllers
                         return NotFound();
                     }
 
-                    user.Username = viewModel.Username;
+                    user.UserName = viewModel.UserName;
                     user.Email = viewModel.Email;
 
                     _context.Update(user);
@@ -116,7 +116,7 @@ namespace DeclutterHub.Areas.Admin.Controllers
             return View(viewModel);
         }
 
-        private bool UserExists(int id) => _context.User.Any(e => e.Id == id.ToString());
+        private bool UserExists(string id) => _context.User.Any(e => e.Id == id);
 
         [HttpPost]
         [ValidateAntiForgeryToken]

@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using DeclutterHub.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace DeclutterHub.Data
 {
-    public class DeclutterHubContext : DbContext
+    public class DeclutterHubContext : IdentityDbContext<User>
     {
         public DeclutterHubContext (DbContextOptions<DeclutterHubContext> options)
             : base(options)

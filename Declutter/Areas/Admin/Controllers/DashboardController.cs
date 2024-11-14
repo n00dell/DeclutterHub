@@ -13,12 +13,12 @@ namespace DeclutterHub.Areas.Admin.Controllers
     public class DashboardController : Controller
     {
         private readonly DeclutterHubContext _context;
-        private readonly UserManager<User> _userManager;
+       
 
-        public DashboardController(DeclutterHubContext context, UserManager<User> userManager)
+        public DashboardController(DeclutterHubContext context)
         {
             _context = context;
-            _userManager = userManager;
+            
         }
 
         public async Task<IActionResult> Index()
@@ -26,7 +26,7 @@ namespace DeclutterHub.Areas.Admin.Controllers
             try
             {
                 // Get user count using Identity UserManager
-                ViewBag.TotalUsers = await _userManager.Users.CountAsync();
+                ViewBag.TotalUsers = await _context.User.CountAsync();
 
                 // Other counts remain the same
                 ViewBag.TotalItems = await _context.Item.CountAsync();
@@ -34,7 +34,7 @@ namespace DeclutterHub.Areas.Admin.Controllers
                 ViewBag.PendingApprovals = await _context.Category.CountAsync(c => !c.IsApproved);
 
                 // Get recent users using Identity UserManager
-                ViewBag.RecentUsers = await _userManager.Users
+                ViewBag.RecentUsers = await _context.User
                     .OrderByDescending(u => u.CreatedAt)
                     .Take(5)
                     .ToListAsync();

@@ -5,7 +5,7 @@ namespace DeclutterHub.Models
     public class SignUpViewModel
     {
         [Required(ErrorMessage ="Username Required")]
-        public string Username { get; set; }
+        public string UserName { get; set; }
 
         [Required(ErrorMessage ="Email Required")]
         [EmailAddress(ErrorMessage = "Invalid email address")]

@@ -105,6 +105,7 @@ namespace DeclutterHub.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Suggest(CategoryViewModel model)
         {
+
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -150,6 +151,17 @@ namespace DeclutterHub.Controllers
                     return View(model);
                 }
             }
+            var userName = User.Identity?.Name;
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            // Debugging
+            Console.WriteLine($"UserName: {userName}, UserId: {userId}");
+
+            if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(userId))
+            {
+                ModelState.AddModelError("", "User is not authenticated properly.");
+                return View(model);
+            }
 
             var category = new Category
             {
@@ -161,7 +173,7 @@ namespace DeclutterHub.Controllers
                 ClickCount = 0,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                CreatedBy = User.Identity.Name
+                CreatedBy = userName ?? userId
             };
 
             try

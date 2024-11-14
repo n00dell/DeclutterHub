@@ -18,8 +18,8 @@
         return colors[colorIndex];
     }
 
-    var userInitials = Model.User != null ? GetInitials(Model.User.Username) : "?";
-    var avatarColor = Model.User != null ? GetAvatarColor(Model.User.Username) : "#000"; // Default color
+    var userInitials = Model.User != null ? GetInitials(Model.User.UserName) : "?";
+    var avatarColor = Model.User != null ? GetAvatarColor(Model.User.UserName) : "#000"; // Default color
 
 }
 
@@ -122,7 +122,7 @@
             <div class="avatar">
                 @if (!string.IsNullOrEmpty(Model.User?.Avatar))
                 {
-                    <img src="@Model.User?.Avatar" alt="@Model.User?.Username" class="rounded-circle shadow-sm" style="width: 50px; height: 50px; object-fit: cover;" />
+                    <img src="@Model.User?.Avatar" alt="@Model.User?.UserName" class="rounded-circle shadow-sm" style="width: 50px; height: 50px; object-fit: cover;" />
                 }
                 else
                 {
@@ -133,7 +133,7 @@
             </div>
         </div>
         <div class="col-md-11">
-            <h6 class="mb-0">@(Model.User?.Username ?? "Unknown User")</h6>
+            <h6 class="mb-0">@(Model.User?.UserName ?? "Unknown User")</h6>
             <small class="text-muted">
                 @if (Model.User?.CreatedAt != null)
                 {
@@ -147,7 +147,7 @@
 @if (Model.User != null && Model.User.ListedItems != null && Model.User.ListedItems.Count > 0)
 {
     <div class="other-items mt-5">
-        <h4>More Items from @Model.User.Username</h4>
+        <h4>More Items from @Model.User.UserName</h4>
         <div class="row">
             @foreach (var otherItem in Model.User.ListedItems)
             {

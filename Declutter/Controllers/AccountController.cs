@@ -6,16 +6,22 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Org.BouncyCastle.Crypto.Generators;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace DeclutterHub.Controllers
 {
     public class AccountController : Controller
     {
         private readonly DeclutterHubContext _context;
+        private readonly UserManager<User> _userManager;
+        private readonly SignInManager<User> _signInManager;
 
-        public AccountController(DeclutterHubContext context)
+        public AccountController(DeclutterHubContext context, UserManager<User> userManager, SignInManager<User> signInManager)
         {
             _context = context;
+            _userManager = userManager;
+            _signInManager = signInManager;
         }
 
         // GET: /Account/SignUp
@@ -29,26 +35,56 @@ namespace DeclutterHub.Controllers
             return View();
         }
         // POST: /Account/SignUp
+
+        // POST: /Account/SignUp
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult SignUp(SignUpViewModel model)
+        public async Task<IActionResult> SignUp(SignUpViewModel model)
         {
             if (ModelState.IsValid)
             {
+                // Check if the email is already taken
+                if (await _userManager.FindByEmailAsync(model.Email) != null)
+                {
+                    ModelState.AddModelError("Email", "Email is already taken.");
+                    return View(model);
+                }
+
+                // Check if the username is already taken
+                if (await _userManager.FindByNameAsync(model.UserName) != null)
+                {
+                    ModelState.AddModelError("UserName", "Username is already taken.");
+                    return View(model);
+                }
+
                 // Create a new User
                 var user = new User
                 {
-                    Username = model.Username,
+                    UserName = model.UserName,
                     Email = model.Email,
-                    Password = HashPassword(model.Password)  // Hash the password before saving
+                    EmailConfirmed = false, // Assuming email verification is pending
+                    IsAdmin = false, // Assuming the user is not an admin by default
+                    CreatedAt = DateTime.UtcNow, // Set the account creation date
+                    Avatar = null, // Set a default value for Avatar, assuming it's nullable
                 };
 
-                // Save the user to the database
-                _context.User.Add(user);
-                _context.SaveChanges();
+                // Set the password hash
+                var result = await _userManager.CreateAsync(user, model.Password);
 
-                // Redirect to home or login after successful registration
-                return RedirectToAction("Index", "Home");
+                if (result.Succeeded)
+                {
+                    // You can also assign the user to a default role (e.g., "User")
+                    await _userManager.AddToRoleAsync(user, "User");
+
+                    // Redirect to login or home page after successful registration
+                    return RedirectToAction("Login", "Account");
+                }
+
+                // If registration fails, show errors
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
             }
 
             // If validation fails, redisplay the sign-up form with error messages
@@ -60,41 +96,59 @@ namespace DeclutterHub.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = _context.User.SingleOrDefault(u => u.Email == model.Email);
-                if(user!= null && BCrypt.Net.BCrypt.Verify(model.Password, user.Password))
+                // Find the user by email
+                var user = await _userManager.FindByEmailAsync(model.Email);
+                if (user != null)
                 {
-                    var claims = new List<Claim>
-                    {
-                        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                        new Claim(ClaimTypes.Name, user.Username),
-                        new Claim(ClaimTypes.Email, user.Email),
-                        new Claim(ClaimTypes.Role, user.IsAdmin?"Admin": "User")
-                    };
-                    if (user.IsAdmin)
-                    {
-                        claims.Add(new Claim(ClaimTypes.Role, "Admin"));
-                    }
-                    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+                    // Sign in using SignInManager
+                    var result = await _signInManager.PasswordSignInAsync(
+                        user,
+                        model.Password,
+                        model.RememberMe,  // Assuming you have this in your model
+                        lockoutOnFailure: false);
 
-                    if (user.IsAdmin)
+                    if (result.Succeeded)
                     {
-                        return RedirectToAction("Index", "Dashboard", new {area = "Admin"});
+                        // Add custom claims if needed
+                        if (user.IsAdmin)
+                        {
+                            await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, "Admin"));
+                        }
+
+                        if (user.EmailConfirmed)
+                        {
+                            await _userManager.AddClaimAsync(user, new Claim("EmailConfirmed", "true"));
+                        }
+
+                        // Redirect based on user role
+                        if (user.IsAdmin)
+                        {
+                            return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
+                        }
+                        else
+                        {
+                            return RedirectToAction("Index", "Home");
+                        }
                     }
-                    else
+                    else if (result.RequiresTwoFactor)
                     {
-                        return RedirectToAction("Index", "Home");
+                        return RedirectToAction("LoginWith2fa", new { RememberMe = model.RememberMe });
                     }
-                    
+                    else if (result.IsLockedOut)
+                    {
+                        return RedirectToAction("Lockout");
+                    }
                 }
-                else
-                {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt");
-                }
-                
+
+                // Invalid login attempt
+                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
             }
+
+            // Return the view with model errors if login fails
             return View(model);
         }
+
+
         public async Task<IActionResult> Logout()
         {
             //sign out the user

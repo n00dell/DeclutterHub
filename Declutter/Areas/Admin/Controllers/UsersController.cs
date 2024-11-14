@@ -1,7 +1,5 @@
 ﻿using DeclutterHub.Data;
-
 using DeclutterHub.Models;
-using Elfie.Serialization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -9,10 +7,9 @@ using Microsoft.EntityFrameworkCore;
 namespace DeclutterHub.Areas.Admin.Controllers
 {
     [Authorize(Roles = "Admin")]
-    [Area ("Admin")]
+    [Area("Admin")]
     public class UsersController : Controller
     {
-
         private readonly DeclutterHubContext _context;
 
         public UsersController(DeclutterHubContext context)
@@ -22,25 +19,25 @@ namespace DeclutterHub.Areas.Admin.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var users = await _context.User.ToListAsync();
+            // Adjust to use IdentityUser
+            var users = await _context.User.ToListAsync();  // Use 'Users' instead of 'User'
             foreach (var user in users)
             {
-                TempData[$"User_{user.Id}"] = $"Username: {user.Username}, Email: {user.Email}";
+                TempData[$"User_{user.Id}"] = $"Username: {user.UserName}, Email: {user.Email}"; // Use 'UserName'
             }
             return View(users);
         }
-        
 
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(string id)  // 'id' is now of type string, not int
         {
             if (id == null) return NotFound();
-            var user = await _context.User.FindAsync(id);
+            var user = await _context.User.FindAsync(id); // Use 'Users' instead of 'User'
             if (user == null) return NotFound();
 
             var viewModel = new EditUserViewModel
             {
-                
-                Username = user.Username,
+                Id = user.Id, // Ensure Id is being correctly mapped
+                UserName = user.UserName,  // Use 'UserName' instead of 'Username'
                 Email = user.Email
             };
 
@@ -49,7 +46,7 @@ namespace DeclutterHub.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, EditUserViewModel viewModel)
+        public async Task<IActionResult> Edit(string id, EditUserViewModel viewModel)  // 'id' is now string
         {
             if (id != viewModel.Id)
             {
@@ -60,14 +57,14 @@ namespace DeclutterHub.Areas.Admin.Controllers
             {
                 try
                 {
-                    var user = await _context.User.FindAsync(id);
+                    var user = await _context.User.FindAsync(id);  // Use 'Users' instead of 'User'
                     if (user == null)
                     {
                         return NotFound();
                     }
 
-                    user.Username = viewModel.Username;
-                    user.Email = viewModel.Email;
+                    user.UserName = viewModel.UserName; // Update UserName, if necessary
+                    user.Email = viewModel.Email;  // Update Email, if necessary
 
                     _context.Update(user);
                     await _context.SaveChangesAsync();
@@ -90,19 +87,19 @@ namespace DeclutterHub.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(string id)  // 'id' is now string
         {
-            var user = await _context.User.FindAsync(id);
+            var user = await _context.User.FindAsync(id);  // Use 'Users' instead of 'User'
             if (user == null) return NotFound();
 
-            _context.User.Remove(user);
+            _context.User.Remove(user);  // Use 'Users' instead of 'User'
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool UserExists(int id)
+        private bool UserExists(string id)  // 'id' is now string
         {
-            return _context.User.Any(e => e.Id == id.ToString());
+            return _context.User.Any(e => e.Id == id);  // Use 'Users' instead of 'User'
         }
     }
 }

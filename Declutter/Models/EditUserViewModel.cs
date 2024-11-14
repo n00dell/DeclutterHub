@@ -5,10 +5,10 @@ namespace DeclutterHub.Models
     
         public class EditUserViewModel
         {
-            public int Id { get; set; }
+            public string Id { get; set; }
 
             [Required]
-            public string Username { get; set; }
+            public string UserName { get; set; }
 
             [Required]
             [EmailAddress]

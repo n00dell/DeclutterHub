@@ -22,7 +22,7 @@
         </div>
 
         <div class="remember-me">
-            <input type="checkbox" id="remember" name="remember" />
+            <input asp-for="RememberMe" type="checkbox" id="remember" />
             <label for="remember">Remember me</label>
         </div>
 
@@ -38,7 +38,5 @@
 </div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    @await Html.PartialAsync("_ValidationScriptsPartial")
 }

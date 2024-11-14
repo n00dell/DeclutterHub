@@ -1,9 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using DeclutterHub.Data;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using DeclutterHub.Models;
-using FluentAssertions.Common;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Razor;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,22 +11,49 @@ builder.Services.AddDbContext<DeclutterHubContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DeclutterHubContext") ??
                       throw new InvalidOperationException("Connection string 'DeclutterHubContext' not found.")));
 
-// Add authentication services with cookie-based authentication
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
-    {
-        options.LoginPath = "/Account/Login";  // Path for login
-        options.LogoutPath = "/Account/Logout";  // Path for logout
-    });
+// Add Identity services before authentication
+builder.Services.AddIdentity<User, IdentityRole>(options =>
+{
+    options.SignIn.RequireConfirmedAccount = false;
+    // Password settings
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireNonAlphanumeric = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequiredLength = 6;
 
+    // User settings
+    options.User.RequireUniqueEmail = true;
+
+    // Lockout settings
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+    options.Lockout.MaxFailedAccessAttempts = 5;
+})
+.AddEntityFrameworkStores<DeclutterHubContext>()
+.AddDefaultTokenProviders();
+
+// Configure cookie settings
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Account/Login";
+    options.LogoutPath = "/Account/Logout";
+    options.AccessDeniedPath = "/Account/AccessDenied";
+    options.SlidingExpiration = true;
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+});
+
+// Add authorization policies
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
 });
+
 // Add services for controllers with views
 builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages(); // Required for Identity UI
 builder.Services.AddHttpContextAccessor();
 
+// Configure Razor view locations
 builder.Services.Configure<RazorViewEngineOptions>(options =>
 {
     options.AreaViewLocationFormats.Clear();
@@ -48,31 +73,57 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
 
-// Use authentication and authorization
-app.UseAuthentication();  // Added this to ensure authentication middleware is used
+// Authentication & Authorization middleware
+app.UseAuthentication();
 app.UseAuthorization();
+
+// Map routes
+app.MapRazorPages(); // Required for Identity pages
 
 app.MapControllerRoute(
     name: "areas",
     pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");
+
+app.MapControllerRoute(
+    name: "categoryItems",
+    pattern: "Category/{categoryId}/Items",
+    defaults: new { controller = "Items", action = "ItemsByCategory" });
+
+app.MapControllerRoute(
+    name: "itemsByCategory",
+    pattern: "Items/Category/{categoryId}",
+    defaults: new { controller = "Items", action = "ItemsByCategory" });
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-app.MapControllerRoute(
-        name: "categoryItems",
-        pattern: "Category/{categoryId}/Items",
-        defaults: new { controller = "Items", action = "ItemsByCategory" });
-app.MapControllerRoute(
-        name: "itemsByCategory",
-        pattern: "Items/Category/{categoryId}",
-        defaults: new { controller = "Items", action = "ItemsByCategory" });
 
+// Ensure database is created and migrations are applied
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<DeclutterHubContext>();
+        var userManager = services.GetRequiredService<UserManager<User>>();
+        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+
+        context.Database.Migrate();
+
+        // Seed default roles if they don't exist
+        if (!roleManager.Roles.Any())
+        {
+            await roleManager.CreateAsync(new IdentityRole("Admin"));
+            await roleManager.CreateAsync(new IdentityRole("User"));
+        }
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while migrating or seeding the database.");
+    }
+}
 
 app.Run();
-
-
-
-
