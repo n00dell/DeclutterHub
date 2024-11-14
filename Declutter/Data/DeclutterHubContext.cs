@@ -36,7 +36,12 @@ namespace DeclutterHub.Data
                 .HasForeignKey(i => i.UserId)  // Foreign key is UserId in Item
                 .IsRequired(); // Make it required if necessary
 
-            // Add other custom configurations as needed...
+            modelBuilder.Entity<SavedItem>()
+            .HasKey(s => s.Id);
+
+            modelBuilder.Entity<SavedItem>()
+                .Property(s => s.Id)
+                .ValueGeneratedOnAdd();
         }
     }
 }

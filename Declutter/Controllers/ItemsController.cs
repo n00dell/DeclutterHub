@@ -10,6 +10,7 @@ using DeclutterHub.Models;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using DeclutterHub.Migrations;
 
 namespace DeclutterHub.Controllers
 {
@@ -108,7 +109,12 @@ namespace DeclutterHub.Controllers
                 }
                 else
                 {
-                    
+                    var phoneNumber = model.PhoneNumber.StartsWith("0")
+                        ? model.PhoneNumber.Substring(1) // Remove leading zero
+                        : model.PhoneNumber;
+
+                    var fullPhoneNumber = model.CountryCode + phoneNumber;
+
                     var item = new Item
                     {
                         Name = model.Name,
@@ -117,7 +123,7 @@ namespace DeclutterHub.Controllers
                         IsSold = false,
                         CreatedAt = DateTime.UtcNow,
                         Location = model.Location,
-                        PhoneNumber = model.PhoneNumber.ToString(),
+                        PhoneNumber =fullPhoneNumber,
                         IsNegotiable = model.IsNegotiable,
                         Condition = model.Condition,
                         CategoryId = model.CategoryId,
@@ -170,14 +176,127 @@ namespace DeclutterHub.Controllers
             {
                 return NotFound();
             }
-            ViewData["CategoryId"] = new SelectList(_context.Category.Where(c => c.IsApproved), "Id", "Id", item.CategoryId);
-            return View(item);
+
+            // Map Item model to EditItemViewModel
+            var viewModel = new EditItemViewModel
+            {
+                Id = item.Id,
+                Name = item.Name,
+                Description = item.Description,
+                Price = item.Price,
+                Location = item.Location,
+                PhoneNumber = item.PhoneNumber,
+                IsNegotiable = item.IsNegotiable,
+                Condition = item.Condition,
+                IsVerified = item.IsVerified,
+                CategoryId = item.CategoryId,
+                IsSold = item.IsSold,
+                CountryCode = item.PhoneNumber?.StartsWith("+") == true ? item.PhoneNumber.Substring(0, 4) : "",  // Extract the country code if available
+                CountryCodes = new List<SelectListItem>
+        {
+            new SelectListItem { Value = "+1", Text = "US (+1)" },
+            new SelectListItem { Value = "+44", Text = "UK (+44)" },
+            new SelectListItem { Value = "+254", Text = "KE (+254)" },
+            new SelectListItem { Value = "+91", Text = "IN (+91)" },
+            // Add more country codes as needed
+        }
+            };
+
+            // Populate category dropdown
+            ViewData["CategoryId"] = new SelectList(_context.Category.Where(c => c.IsApproved), "Id", "Name", item.CategoryId);
+
+            return View(viewModel);  // Return the EditItemViewModel to the view
         }
 
+
         // POST: Items/Edit/5
+        //    [HttpPost]
+        //    [ValidateAntiForgeryToken]
+        //    public async Task<IActionResult> Edit(int id, EditItemViewModel item)
+        //    {
+        //        if (id != item.Id)
+        //        {
+        //            return NotFound();
+        //        }
+
+        //        if (ModelState.IsValid)
+        //        {
+        //            var selectedCategory = await _context.Category.FindAsync(item.CategoryId);
+        //            if (selectedCategory == null || !selectedCategory.IsApproved)
+        //            {
+        //                ModelState.AddModelError("CategoryId", "The selected category is not approved.");
+        //            }
+        //            else
+        //            {
+        //                var itemToUpdate = await _context.Item.FindAsync(id);
+        //                if (itemToUpdate == null)
+        //                {
+        //                    return NotFound();
+        //                }
+        //                string phoneNumber = item.PhoneNumber;
+
+
+        //                // Check if the phone number starts with "0", remove it
+        //                if (phoneNumber.StartsWith("0"))
+        //                {
+        //                    phoneNumber = phoneNumber.Substring(1); // Remove leading zero
+        //                }
+        //                string fullPhoneNumber = item.CountryCode + phoneNumber;
+        //                // Update item properties
+        //                var model = new EditItemViewModel
+        //                {
+        //                    Id = item.Id,
+        //                    Name = item.Name,
+        //                    Description = item.Description,
+        //                    Price = item.Price,
+        //                    Location = item.Location,
+        //                    PhoneNumber = item.PhoneNumber,
+        //                    IsNegotiable = item.IsNegotiable,
+        //                    Condition = item.Condition,
+        //                    IsVerified = item.IsVerified,
+        //                    CategoryId = item.CategoryId,
+        //                    IsSold = item.IsSold,
+        //                    CountryCode = item.CountryCode,  // Pass the country code from the Item model
+        //                    Images = item.Images, // Pass any existing images
+        //                };
+
+        //                // Include the country codes in the model
+        //                model.CountryCodes = new List<SelectListItem>
+        //{
+        //    new SelectListItem { Value = "+1", Text = "US (+1)" },
+        //    new SelectListItem { Value = "+44", Text = "UK (+44)" },
+        //    new SelectListItem { Value = "+254", Text = "KE (+254)" },
+        //    new SelectListItem { Value = "+91", Text = "IN (+91)" },
+        //                        // Add more country codes as needed
+        //                  };
+
+        //                try
+        //                {
+        //                    await _context.SaveChangesAsync();
+        //                }
+        //                catch (DbUpdateConcurrencyException)
+        //                {
+        //                    if (!ItemExists(itemToUpdate.Id))
+        //                    {
+        //                        return NotFound();
+        //                    }
+        //                    else
+        //                    {
+        //                        throw;
+        //                    }
+        //                }
+        //                return RedirectToAction(nameof(Index));
+        //            }
+        //        }
+
+        //        // Populate approved categories again if model state is invalid
+        //        ViewData["CategoryId"] = new SelectList(await _context.Category.Where(c => c.IsApproved).ToListAsync(), "Id", "Name", item.CategoryId);
+
+        //        return View(item);
+        //    }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, EditItemViewModel item)
+        public async Task<IActionResult> EditPost(int id, EditItemViewModel item)
         {
             if (id != item.Id)
             {
@@ -199,12 +318,19 @@ namespace DeclutterHub.Controllers
                         return NotFound();
                     }
 
+                    // Handle phone number
+                    var phoneNumber = item.PhoneNumber.StartsWith("0")
+                        ? item.PhoneNumber.Substring(1) // Remove leading zero
+                        : item.PhoneNumber;
+
+                    var fullPhoneNumber = item.CountryCode + phoneNumber;
+
                     // Update item properties
                     itemToUpdate.Name = item.Name;
                     itemToUpdate.Description = item.Description;
                     itemToUpdate.Price = item.Price;
                     itemToUpdate.Location = item.Location;
-                    itemToUpdate.PhoneNumber = item.PhoneNumber;
+                    itemToUpdate.PhoneNumber = fullPhoneNumber;
                     itemToUpdate.IsNegotiable = item.IsNegotiable;
                     itemToUpdate.Condition = item.Condition;
                     itemToUpdate.CategoryId = item.CategoryId;
@@ -224,6 +350,7 @@ namespace DeclutterHub.Controllers
                             throw;
                         }
                     }
+
                     return RedirectToAction(nameof(Index));
                 }
             }
@@ -315,20 +442,31 @@ namespace DeclutterHub.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = _userManager.GetUserAsync(User);
+                var user = await _userManager.GetUserAsync(User);
                 if (user == null)
                 {
                     //return BadRequest("User not authenticated");
                     return Challenge();
                 }
 
-                var savedItem = new SavedItem { UserId = user.Id, ItemId = id, SavedAt = DateTime.UtcNow };
+                var existingSavedItem = await _context.SavedItem.FirstOrDefaultAsync(s=> s.UserId == user.Id && s.ItemId == id);
+                if (existingSavedItem != null)
+                {
+                    return BadRequest("Item is already saved");
+                }
+
+                var savedItem = new SavedItem
+                {
+                    UserId = user.Id,
+                    ItemId = id,
+                    SavedAt = DateTime.UtcNow,
+                };
                 _context.SavedItem.Add(savedItem);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return Ok("Item saved successfully");
             }
 
-            return BadRequest();
+            return BadRequest("Invalid data");
         }
 
         private bool ItemExists(int id)

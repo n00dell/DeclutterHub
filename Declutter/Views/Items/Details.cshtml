@@ -88,7 +88,7 @@
                 </div>
 
                 <script>
-                    function saveItem(itemId) {
+                                       function saveItem(itemId) {
                         fetch(`/Items/SaveItem/${itemId}`, { method: 'POST' })
                             .then(response => {
                                 if (!response.ok) {
@@ -99,10 +99,10 @@
                                 alert("Item saved!");
                             })
                             .catch(error => {
-                                console.error("Error saving item:", error);
+                                console.error("Error saving item:", error.message);
                                 alert("Error: " + error.message);
                             });
-}
+                    }
 
                 </script>
 

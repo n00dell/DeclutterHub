@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System.ComponentModel.DataAnnotations;
 
 namespace DeclutterHub.Models
 {
@@ -16,9 +17,20 @@ namespace DeclutterHub.Models
 
         public string Location { get; set; }
 
-        [Display(Name = "Phone Number")]
-        public int PhoneNumber { get; set; }
+        public string CountryCode {  get; set; }
 
+        [Required]
+        [RegularExpression(@"^\d{10}$", ErrorMessage = "Please enter a valid 10-digit phone number.")]
+        public string PhoneNumber { get; set; }
+
+        public List<SelectListItem> CountryCodes { get; set; } = new List<SelectListItem>
+    {
+        new SelectListItem { Value = "+1", Text = "US (+1)" },
+        new SelectListItem { Value = "+44", Text = "UK (+44)" },
+        new SelectListItem { Value = "+254", Text = "KE (+254)" },
+        new SelectListItem { Value = "+91", Text = "IN (+91)" },
+        // Add more country codes as needed
+    };
         public bool IsNegotiable { get; set; }
 
         public string Condition { get; set; }

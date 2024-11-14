@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace DeclutterHub.Models
 {
@@ -16,7 +17,8 @@ namespace DeclutterHub.Models
 
   
         public string PhoneNumber { get; set; } = string.Empty;
-
+        public string CountryCode { get; set; }
+     
         public bool IsNegotiable { get; set; }
 
         public string Condition { get; set; }

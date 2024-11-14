@@ -6,7 +6,15 @@
     <p>
         <a asp-action="Create" class="btn btn-primary">Create New</a>
     </p>
-
+    @if (!Model.Any())
+    {
+        <!-- Display message if no items exist for the user -->
+        <div class="alert alert-info">
+            You haven't posted any items yet.
+        </div>
+    }
+    else
+    {
     <div class="row">
         @foreach (var item in Model)
         {
@@ -50,7 +58,7 @@
                 </div>
             </div>
         }
-    </div>
+    </div>}
 </div>
 
 <!-- Confirmation Modal -->
