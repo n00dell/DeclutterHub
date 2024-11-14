@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using DeclutterHub.Data;
 using DeclutterHub.Models;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
 
 namespace DeclutterHub.Controllers
 {
@@ -17,24 +18,29 @@ namespace DeclutterHub.Controllers
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly string[] _allowedExtensions = { ".jpg", ".jpeg", ".png" };
         private const int MaxFileSize = 5 * 1024 * 1024; // 5MB
+        private readonly UserManager<User> _userManager;
+        private readonly SignInManager<User> _signInManager;
        
 
-        public CategoriesController(DeclutterHubContext context, IWebHostEnvironment webHostEnvironment)
+        public CategoriesController(DeclutterHubContext context, IWebHostEnvironment webHostEnvironment, UserManager<User> userManager, SignInManager<User> signInManager)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
+            _userManager = userManager;
+            _signInManager = signInManager;
             
         }
      
         public async Task<IActionResult> Index()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var userName = User.Identity?.Name;
+            var user = await _userManager.GetUserAsync(User);
+            var userId = user?.Id;
+            var userName = user?.UserName;
 
             // Add debug information to ViewBag
             ViewBag.CurrentUserId = userId;
             ViewBag.CurrentUserName = userName;
-            ViewBag.IsAuthenticated = User.Identity?.IsAuthenticated;
+            ViewBag.IsAuthenticated = _signInManager.IsSignedIn(User);
 
             // Get all categories first for debugging
             var allCategories = await _context.Category.ToListAsync();
@@ -42,7 +48,7 @@ namespace DeclutterHub.Controllers
 
             // Get the user's suggestions
             var suggestions = await _context.Category
-                .Where(c => c.CreatedBy == userName || c.CreatedBy == userId)
+                .Where(c => c.CreatedBy == userName)
                 .OrderByDescending(c => c.CreatedAt)
                 .ToListAsync();
 
@@ -52,12 +58,12 @@ namespace DeclutterHub.Controllers
             ViewBag.PendingSuggestions = suggestions.Count(s => !s.IsApproved);
 
             // Add raw query results to ViewBag for debugging
-            ViewBag.AllCategoriesDebug = allCategories.Select(c => new
-            {
-                c.Name,
-                c.CreatedBy,
-                c.IsApproved
-            }).ToList();
+            //ViewBag.AllCategoriesDebug = allCategories.Select(c => new
+            //{
+            //    c.Name,
+            //    c.CreatedBy,
+            //    c.IsApproved
+            //}).ToList();
 
             return View(suggestions);
         }
@@ -97,7 +103,12 @@ namespace DeclutterHub.Controllers
         [Authorize]
         public IActionResult Suggest()
         {
-            return View(new CategoryViewModel());
+            var viewModel = new CategoryViewModel();
+            if (_signInManager.IsSignedIn(User))
+            {
+                viewModel.CreatedBy = User.Identity.Name;
+            }
+            return View(viewModel);
         }
 
         [HttpPost]
@@ -105,7 +116,16 @@ namespace DeclutterHub.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Suggest(CategoryViewModel model)
         {
-
+            if (!_signInManager.IsSignedIn(User))
+            {
+                return Challenge();
+            }
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            model.CreatedBy = user.UserName;
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -173,7 +193,7 @@ namespace DeclutterHub.Controllers
                 ClickCount = 0,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                CreatedBy = userName ?? userId
+                CreatedBy = user.UserName
             };
 
             try
@@ -193,8 +213,13 @@ namespace DeclutterHub.Controllers
         [Authorize]
         public async Task<IActionResult> MySuggestions()
         {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Challenge();
+            }
             var suggestions = await _context.Category
-                .Where(c => c.CreatedBy == User.Identity.Name)
+                .Where(c => c.CreatedBy == user.UserName)
                 .OrderByDescending(c => c.CreatedAt)
                 .ToListAsync();
 
