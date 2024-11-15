@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
 
-namespace DeclutterHub.Models
+namespace DeclutterHub.Models.ViewModels
 {
     public class CategoryViewModel
     {

@@ -1,5 +1,7 @@
 html {
     font-size: 14px;
+    position: relative;
+    min-height: 100%;
 }
 
 @media (min-width: 768px) {
@@ -8,35 +10,37 @@ html {
     }
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-    position: relative;
-    min-height: 100%;
-}
-
 body {
     margin-bottom: 60px;
     background-color: #f8f9fa;
     color: #212529;
 }
 
+/* Button Focus Styles */
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus,
+.form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+/* Card Styles */
 .card {
-    transition: transform 0.2s;
+    border: none;
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 
     .card:hover {
-        transform: scale(1.05);
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
     }
 
 .card-img-top {
-    border-radius: 5px 5px 0 0;
     height: 200px;
     object-fit: cover;
+    background-color: #f8f9fa;
+    border-radius: 5px 5px 0 0;
 }
 
+/* Category Styles */
 .category {
     display: flex;
     flex-direction: column;
@@ -51,6 +55,7 @@ body {
         display: flex;
         flex-direction: column;
         align-items: center;
+        transition: color 0.2s ease;
     }
 
     .category .image-container {
@@ -95,113 +100,80 @@ body {
     .category:hover .image-container {
         transform: scale(1.05);
     }
-.category-carousel {
-    position: relative;
-    height: 400px;
-    margin-bottom: 3rem;
-    overflow: hidden;
-    border-radius: 0.5rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+
+/* Hero Carousel Styles */
+.hero-section {
+    margin-top: -0.9rem;
 }
 
+
 .carousel-item {
-    height: 400px;
+    height: 500px;
     background-color: #000;
 }
 
-.carousel-content {
-    display: flex;
-    height: 100%;
-}
-
-.carousel-text {
-    width: 50%;
-    padding: 2rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    color: white;
-    position: relative;
-    z-index: 2;
-}
-
-    .carousel-text::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(to right, rgba(0,0,0,0.8), transparent);
-        z-index: -1;
-    }
-
-.carousel-image {
-    width: 50%;
-    height: 100%;
-}
-
-    .carousel-image img {
-        width: 100%;
+    .carousel-item img {
         height: 100%;
         object-fit: cover;
+        opacity: 0.7;
     }
 
-.carousel-title {
-    font-size: 2.5rem;
-    font-weight: bold;
-    margin-bottom: 1rem;
+.carousel-caption {
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(0deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
+    padding: 2rem;
+    text-align: left;
 }
 
-.carousel-description {
-    font-size: 1.1rem;
-    line-height: 1.6;
+.caption-content {
+    max-width: 800px;
+    margin: 0 auto;
 }
 
 .carousel-control-prev,
 .carousel-control-next {
-    width: 3rem;
-    height: 3rem;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
-    background-color: rgba(255, 255, 255, 0.3);
+    background-color: rgba(0, 0, 0, 0.2);
     top: 50%;
     transform: translateY(-50%);
-    opacity: 0.8;
+    margin: 0 1rem;
 }
-
-.carousel-control-prev {
-    left: 1rem;
-}
-
-.carousel-control-next {
-    right: 1rem;
-}
-
-    .carousel-control-prev:hover,
-    .carousel-control-next:hover {
-        background-color: rgba(255, 255, 255, 0.5);
-        opacity: 1;
-    }
 
 .carousel-indicators {
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
 }
 
-    .carousel-indicators [data-bs-target] {
-        width: 10px;
-        height: 10px;
+    .carousel-indicators button {
+        width: 8px;
+        height: 8px;
         border-radius: 50%;
-        background-color: rgba(255, 255, 255, 0.5);
-        border: none;
-        margin: 0 4px;
     }
 
     .carousel-indicators .active {
-        background-color: white;
         width: 20px;
         border-radius: 5px;
     }
-/* Keep existing auth-container styles */
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .carousel-item {
+        height: 400px;
+    }
+
+    .carousel-caption {
+        padding: 1.5rem;
+    }
+
+        .carousel-caption h2 {
+            font-size: 2rem;
+        }
+}
+
+/* Auth Container Styles */
 .auth-container {
     max-width: 400px;
     margin: 2rem auto;
@@ -219,7 +191,6 @@ body {
     .auth-header h2 {
         font-size: 2rem;
         color: #333;
-        margin-bottom: 0.5rem;
     }
 
     .auth-header p {
@@ -227,6 +198,47 @@ body {
         font-size: 0.9rem;
     }
 
+.auth-button {
+    width: 100%;
+    padding: 0.75rem;
+    background: #212529;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+    .auth-button:hover {
+        background: #1a1e21;
+    }
+
+    .auth-button:active {
+        transform: translateY(1px);
+        background: #141619;
+    }
+
+.auth-links {
+    text-align: center;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #eee;
+}
+
+    .auth-links a {
+        color: #212529;
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+
+        .auth-links a:hover {
+            color: #1a1e21;
+            text-decoration: underline;
+        }
+
+/* Form Styles */
 .form-floating {
     position: relative;
     margin-bottom: 1rem;
@@ -243,96 +255,15 @@ body {
 
         .form-floating input:focus {
             outline: none;
-            border-color: #212529; /* Matching navbar-dark color */
+            border-color: #212529;
             box-shadow: 0 0 0 2px rgba(33, 37, 41, 0.1);
         }
 
-/* Updated button styles to match navbar-dark */
-.auth-button {
-    width: 100%;
-    padding: 0.75rem;
-    background: #212529; /* Bootstrap's navbar-dark default color */
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-    .auth-button:hover {
-        background: #1a1e21; /* Slightly darker shade for hover */
-    }
-
-    .auth-button:active {
-        transform: translateY(1px);
-        background: #141619; /* Even darker for active state */
-    }
-
-/* Updated link colors to match the theme */
-.auth-links a {
-    color: #212529;
-    text-decoration: none;
-    font-size: 0.9rem;
-}
-
-    .auth-links a:hover {
-        color: #1a1e21;
-        text-decoration: underline;
-    }
-
-/* Form label color when focused */
-.form-floating input:focus ~ label,
-.form-floating input:not(:placeholder-shown) ~ label {
-    top: 0;
-    transform: translateY(-50%) scale(0.85);
-    color: #212529;
-}
-
-/* Rest of your existing styles remain the same */
+/* Miscellaneous */
 .validation-message {
     color: #dc2626;
     font-size: 0.8rem;
     margin-top: 0.25rem;
-    display: block;
-}
-
-.auth-links {
-    text-align: center;
-    margin-top: 1.5rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid #eee;
-}
-
-.remember-me {
-    display: flex;
-    align-items: center;
-    margin: 1rem 0;
-}
-
-    .remember-me input {
-        margin-right: 0.5rem;
-    }
-
-    .remember-me label {
-        color: #666;
-        font-size: 0.9rem;
-    }
-.price-card {
-    background-color: #f8f9fa;
-}
-
-.contact-info {
-    font-size: 0.95rem;
-}
-
-.price-card {
-    background-color: #f8f9fa;
-}
-
-.contact-info {
-    font-size: 0.95rem;
 }
 
 .avatar img, .initial-avatar {
@@ -348,31 +279,6 @@ body {
         transform: scale(1.05);
     }
 
-.carousel-item img {
-    background-color: #f8f9fa;
-}
-
-.carousel-control-prev,
-.carousel-control-next {
-    background-color: rgba(0,0,0,0.2);
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    top: 50%;
-    transform: translateY(-50%);
-    margin: 0 1rem;
-}
-
-.carousel-indicators {
-    margin-bottom: 0.5rem;
-}
-
-    .carousel-indicators button {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-    }
-
 .details-section dl {
     font-size: 0.95rem;
 }
@@ -380,11 +286,3 @@ body {
 .details-section dt {
     color: #6c757d;
 }
-
-.initial-avatar {
-    transition: transform 0.2s;
-}
-
-    .initial-avatar:hover {
-        transform: scale(1.05);
-    }

@@ -1,30 +1,76 @@
 ﻿@model IEnumerable<DeclutterHub.Models.Item>
-
-<h2>@ViewBag.CategoryName Items</h2>
-
-@if (!Model.Any())
-{
-    <p>No items found.</p>
+@{
+    ViewData["Title"] = ViewBag.CategoryName;
 }
-else
-{
-    <div class="row">
-        @foreach (var item in Model)
-        {
-            <div class="col-md-4">
-                <div class="card">
-                    <img src="@item.Images.FirstOrDefault()?.Url" class="card-img-top" alt="@item.Name">
-                    <div class="card-body">
-                        <h5 class="card-title">@item.Name</h5>
-                        <p class="card-text">@item.Description</p>
-                        <p class="card-text">Price: @item.Price.ToString("C")</p>
-                        <a href="@Url.Action("Details", "Items", new { id = item.Id })" class="btn btn-primary">View Details</a>
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">@ViewBag.CategoryName Items</h1>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="card shadow-sm">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-box-seam text-muted mb-3" style="font-size: 2rem;"></i>
+                <h5 class="card-title">No Items Available</h5>
+                <p class="card-text text-muted">There are currently no items listed in this category.</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var item in Model)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm">
+                        @if (item.Images != null && item.Images.Any())
+                        {
+                            <img src="@item.Images.First().Url" class="card-img-top" alt="@item.Name">
+                        }
+                        else
+                        {
+                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <i class="bi bi-image text-muted" style="font-size: 2rem;"></i>
+                            </div>
+                        }
+                        <div class="card-body">
+                            <h5 class="card-title">@item.Name</h5>
+                            <p class="card-text">@(item.Description?.Length > 100 ? item.Description.Substring(0, 100) + "..." : item.Description)</p>
+
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="text-primary fw-bold">Ksh.@item.Price</span>
+                                @if (item.IsNegotiable)
+                                {
+                                    <span class="badge bg-info">
+                                        <i class="bi bi-chat-dots me-1"></i>Negotiable
+                                    </span>
+                                }
+                            </div>
+
+                            @if (item.IsSold)
+                            {
+                                <div class="badge bg-secondary mb-3">
+                                    <i class="bi bi-bag-check me-1"></i>Sold
+                                </div>
+                            }
+                        </div>
+                        <div class="card-footer bg-transparent border-top-0">
+                            <div class="d-flex gap-2 justify-content-end">
+                                <a asp-action="Details" asp-controller="Items" asp-route-id="@item.Id"
+                                   class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-eye me-1"></i>View Details
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        }
-    </div>
+            }
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
 }
-
-
-

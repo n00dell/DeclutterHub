@@ -8,6 +8,7 @@ using Org.BouncyCastle.Crypto.Generators;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using DeclutterHub.Models.ViewModels;
 
 namespace DeclutterHub.Controllers
 {

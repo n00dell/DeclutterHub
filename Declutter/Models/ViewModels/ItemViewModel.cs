@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
-namespace DeclutterHub.Models
+namespace DeclutterHub.Models.ViewModels
 {
     public class ItemViewModel
     {
@@ -17,7 +17,7 @@ namespace DeclutterHub.Models
 
         public string Location { get; set; }
 
-        public string CountryCode {  get; set; }
+        public string CountryCode { get; set; }
 
         [Required]
         [RegularExpression(@"^\d{10}$", ErrorMessage = "Please enter a valid 10-digit phone number.")]

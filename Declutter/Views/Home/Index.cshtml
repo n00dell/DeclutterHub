@@ -1,36 +1,66 @@
 ﻿@model IEnumerable<DeclutterHub.Models.Category>
 @{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Welcome to DeclutterHub";
 }
+
+<!-- Hero Carousel Section -->
 @await Component.InvokeAsync("CategoryCarousel", new { categories = Model })
 
-@if (Model.Any())
-{
-    <div class="container">
-        <div class="row">
+<!-- Main Content Section -->
+<div class="container py-5">
+    @if (!Model.Any())
+    {
+        <div class="card shadow-sm">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-grid-3x3-gap text-muted mb-3" style="font-size: 2rem;"></i>
+                <h5 class="card-title">No Categories Available</h5>
+                <p class="card-text text-muted">Check back later for exciting categories to explore.</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="mb-4">
+            <h2 class="h3 mb-4">Browse Categories</h2>
+        </div>
+
+        <div class="row g-4">
             @foreach (var category in Model)
             {
-                <div class="col-md-4">
-                    <div class="category">
-                        <a href="@Url.Action("ItemsByCategory", "Items", new { categoryId = category.Id })">
-                            <div class="image-container">
-                                <img src="@category.ImageUrl" alt="@category.Name" />
-                            </div>
-                            <h2>@category.Name</h2>
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm category-card">
+                        <a href="@Url.Action("ItemsByCategory", "Items", new { categoryId = category.Id })"
+                           class="text-decoration-none">
+                            @if (!string.IsNullOrEmpty(category.ImageUrl))
+                            {
+                                <div class="card-img-wrapper">
+                                    <img src="@category.ImageUrl" class="card-img-top" alt="@category.Name">
+                                    <div class="card-img-overlay d-flex align-items-end">
+                                        <div class="overlay-content p-3 w-100 text-white">
+                                            <h3 class="h5 mb-2">@category.Name</h3>
+                                            @if (!string.IsNullOrEmpty(category.Description))
+                                            {
+                                                <p class="card-text small mb-0">
+                                                    @(category.Description?.Length > 100 ?
+                                                        category.Description.Substring(0, 100) + "..." :
+                                                        category.Description)
+                                                </p>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="card-img-top bg-light d-flex align-items-center justify-content-center"
+                                     style="height: 200px;">
+                                    <i class="bi bi-image text-muted" style="font-size: 2rem;"></i>
+                                </div>
+                            }
                         </a>
                     </div>
                 </div>
             }
         </div>
-    </div>
-}
-else
-{
-    <p>No categories to display.</p>
-}
-
-
-
-
-
-
+    }
+</div>

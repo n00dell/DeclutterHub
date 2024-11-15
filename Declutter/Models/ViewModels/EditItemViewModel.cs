@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
-namespace DeclutterHub.Models
+namespace DeclutterHub.Models.ViewModels
 {
     public class EditItemViewModel
     {

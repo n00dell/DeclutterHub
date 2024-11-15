@@ -1,5 +1,6 @@
 ﻿using DeclutterHub.Data;
 using DeclutterHub.Models;
+using DeclutterHub.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;

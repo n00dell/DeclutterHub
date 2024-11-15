@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 using System.IO;
+using DeclutterHub.Models.ViewModels;
 
 namespace DeclutterHub.Areas.Admin.Controllers
 {

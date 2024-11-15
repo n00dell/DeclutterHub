@@ -1,17 +1,17 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace DeclutterHub.Models
+namespace DeclutterHub.Models.ViewModels
 {
     public class SignUpViewModel
     {
-        [Required(ErrorMessage ="Username Required")]
+        [Required(ErrorMessage = "Username Required")]
         public string UserName { get; set; }
 
-        [Required(ErrorMessage ="Email Required")]
+        [Required(ErrorMessage = "Email Required")]
         [EmailAddress(ErrorMessage = "Invalid email address")]
         public string Email { get; set; }
 
-        [Required(ErrorMessage ="Password Required")]
+        [Required(ErrorMessage = "Password Required")]
         [DataType(DataType.Password)]
         public string Password { get; set; }
 

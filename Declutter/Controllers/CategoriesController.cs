@@ -9,6 +9,7 @@ using DeclutterHub.Data;
 using DeclutterHub.Models;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
+using DeclutterHub.Models.ViewModels;
 
 namespace DeclutterHub.Controllers
 {

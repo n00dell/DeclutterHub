@@ -1,292 +1,125 @@
 ﻿@model IEnumerable<DeclutterHub.Models.Category>
-
 @{
-    ViewData["Title"] = "My Category Suggestions";
+    ViewData["Title"] = "My Suggestions";
 }
 
-<style>
-    .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 2rem 1rem;
-    }
-
-    .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-    }
-
-    .title-section h1 {
-        font-size: 1.5rem;
-        font-weight: 600;
-        margin-bottom: 0.25rem;
-    }
-
-    .title-section p {
-        color: #64748b;
-        margin: 0;
-    }
-
-    .category-grid {
-        display: grid;
-        grid-template-columns: repeat(1, 1fr);
-        gap: 1.5rem;
-    }
-
-    @@media (min-width: 768px) {
-        .category-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-
-    @@media (min-width: 1024px) {
-        .category-grid {
-            grid-template-columns: repeat(3, 1fr);
-        }
-    }
-
-    .category-card {
-        position: relative;
-        height: 300px;
-        border-radius: 0.5rem;
-        overflow: hidden;
-        transition: transform 0.2s;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-
-        .category-card:hover {
-            transform: translateY(-4px);
-        }
-
-    .category-img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.3s;
-    }
-
-    .category-card:hover .category-img {
-        transform: scale(1.05);
-    }
-
-    .card-overlay {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        padding: 1.5rem;
-        background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.7) 50%, rgba(0,0,0,0) 100%);
-        color: white;
-    }
-
-    .badge {
-        padding: 0.25rem 0.75rem;
-        border-radius: 9999px;
-        font-size: 0.75rem;
-        font-weight: 500;
-    }
-
-    .badge-success {
-        background-color: #22c55e;
-        color: white;
-    }
-
-    .badge-warning {
-        background-color: #f59e0b;
-        color: white;
-    }
-
-    .badge-secondary {
-        background-color: #64748b;
-        color: white;
-    }
-
-    .card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0.5rem;
-    }
-
-    .card-title {
-        font-size: 1.125rem;
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-    }
-
-    .card-description {
-        font-size: 0.875rem;
-        opacity: 0.9;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        margin-bottom: 1rem;
-    }
-
-    .btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.5rem 1rem;
-        border-radius: 0.375rem;
-        font-weight: 500;
-        transition: all 0.2s;
-        text-decoration: none;
-    }
-
-    .btn-primary {
-        background-color: #2563eb;
-        color: white;
-    }
-
-        .btn-primary:hover {
-            background-color: #1d4ed8;
-        }
-
-    .btn-secondary {
-        background-color: white;
-        color: black;
-    }
-
-        .btn-secondary:hover {
-            background-color: #f8fafc;
-        }
-
-    .empty-state {
-        text-align: center;
-        padding: 3rem;
-        background-color: white;
-        border-radius: 0.5rem;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-
-    .empty-state-icon {
-        background-color: #f1f5f9;
-        width: 3rem;
-        height: 3rem;
-        border-radius: 9999px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 1rem;
-    }
-
-    .section-title {
-        font-size: 1.25rem;
-        font-weight: 600;
-        margin-bottom: 1rem;
-    }
-
-    .placeholder-img {
-        width: 100%;
-        height: 100%;
-        background-color: #f1f5f9;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #94a3b8;
-    }
-</style>
-
-<div class="container">
-    <div class="page-header">
-        <div class="title-section">
-            <h1>My Category Suggestions</h1>
-            <p>View and track the status of categories you've suggested</p>
-        </div>
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">My Suggestions</h1>
         <a asp-action="Suggest" class="btn btn-primary">
-            <i class="fas fa-plus"></i>
-            Suggest New Category
+            <i class="bi bi-plus-circle me-2"></i>New Suggestion
         </a>
     </div>
 
-    @if (!Model.Any())
+    @if (Model != null && Model.Any())
     {
-        <div class="empty-state">
-            <div class="empty-state-icon">
-                <i class="fas fa-plus"></i>
-            </div>
-            <p class="mb-4">You haven't suggested any categories yet.</p>
-            <a asp-action="Suggest" class="btn btn-primary">Suggest Your First Category</a>
+        <div class="row g-4">
+            @foreach (var suggestion in Model)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm">
+                        @if (!string.IsNullOrEmpty(suggestion.ImageUrl))
+                        {
+                            <img src="@suggestion.ImageUrl" class="card-img-top" alt="@suggestion.Name">
+                        }
+                        else
+                        {
+                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <i class="bi bi-image text-muted" style="font-size: 2rem;"></i>
+                            </div>
+                        }
+                        <div class="card-body">
+                            <h5 class="card-title">@suggestion.Name</h5>
+                            <p class="card-text text-muted small mb-2">
+                                <i class="bi bi-clock me-1"></i>
+                                @suggestion.CreatedAt.ToString("MMM dd, yyyy")
+                            </p>
+                            <p class="card-text">@(suggestion.Description?.Length > 100 ? suggestion.Description.Substring(0, 100) + "..." : suggestion.Description)</p>
+
+                            @if (suggestion.IsApproved)
+                            {
+                                <div class="badge bg-success mb-3">
+                                    <i class="bi bi-check-circle me-1"></i>Approved
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="badge bg-warning text-dark mb-3">
+                                    <i class="bi bi-clock-history me-1"></i>Pending Approval
+                                </div>
+                            }
+                        </div>
+                        <div class="card-footer bg-transparent border-top-0">
+                            <div class="d-flex gap-2 justify-content-end">
+                                <a asp-action="ItemsByCategory" asp-controller="Items" asp-route-id="@suggestion.Id"
+                                   class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-eye me-1"></i>View
+                                </a>
+                                @if (!suggestion.IsApproved)
+                                {
+                                    <a asp-action="Edit" asp-route-id="@suggestion.Id"
+                                       class="btn btn-outline-warning btn-sm">
+                                        <i class="bi bi-pencil me-1"></i>Edit
+                                    </a>
+                                    <button type="button"
+                                            class="btn btn-outline-danger btn-sm"
+                                            onclick="confirmDelete(@suggestion.Id)">
+                                        <i class="bi bi-trash me-1"></i>Delete
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
     }
     else
     {
-        @if (Model.Any(c => c.IsApproved))
-        {
-            <h2 class="section-title">Approved Categories</h2>
-            <div class="category-grid">
-                @foreach (var category in Model.Where(c => c.IsApproved))
-                {
-                    <div class="category-card">
-                        @if (!string.IsNullOrEmpty(category.ImageUrl))
-                        {
-                            <img src="@category.ImageUrl" class="category-img" alt="@category.Name" />
-                        }
-                        else
-                        {
-                            <div class="placeholder-img">
-                                <i class="fas fa-image fa-2x"></i>
-                            </div>
-                        }
-                        <div class="card-overlay">
-                            <div class="card-header">
-                                @if (category.IsActive)
-                                {
-                                    <span class="badge badge-success">Active</span>
-                                }
-                                else
-                                {
-                                    <span class="badge badge-warning">Inactive</span>
-                                }
-                                <small>
-                                    <i class="fas fa-mouse-pointer"></i>
-                                    @category.ClickCount
-                                </small>
-                            </div>
-                            <h3 class="card-title">@category.Name</h3>
-                            <p class="card-description">@category.Description</p>
-                            <a href="@Url.Action("ItemsByCategory", "Items", new { categoryId = category.Id })"
-                               class="btn btn-secondary w-100">View Items</a>
-                        </div>
-                    </div>
-                }
+        <div class="card shadow-sm">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-clipboard-x text-muted mb-3" style="font-size: 2rem;"></i>
+                <h5 class="card-title">No Suggestions Yet</h5>
+                <p class="card-text text-muted">You haven't made any category suggestions yet.</p>
+                <a asp-action="Suggest" class="btn btn-primary mt-3">
+                    <i class="bi bi-plus-circle me-2"></i>Create Your First Suggestion
+                </a>
             </div>
-        }
-
-        @if (Model.Any(c => !c.IsApproved))
-        {
-            <h2 class="section-title mt-8">Pending Approval</h2>
-            <div class="category-grid">
-                @foreach (var category in Model.Where(c => !c.IsApproved))
-                {
-                    <div class="category-card">
-                        @if (!string.IsNullOrEmpty(category.ImageUrl))
-                        {
-                            <img src="@category.ImageUrl" class="category-img" alt="@category.Name" />
-                        }
-                        else
-                        {
-                            <div class="placeholder-img">
-                                <i class="fas fa-image fa-2x"></i>
-                            </div>
-                        }
-                        <div class="card-overlay">
-                            <div class="card-header">
-                                <span class="badge badge-secondary">Pending Review</span>
-                                <small>
-                                    @category.CreatedAt.ToString("MMM dd")
-                                </small>
-                            </div>
-                            <h3 class="card-title">@category.Name</h3>
-                            <p class="card-description">@category.Description</p>
-                        </div>
-                    </div>
-                }
-            </div>
-        }
+        </div>
     }
 </div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this suggestion?</p>
+                <p class="text-muted small">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" asp-action="Delete" method="post" class="d-inline">
+                    <input type="hidden" name="id" id="deleteId" />
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <script>
+        function confirmDelete(id) {
+            document.getElementById('deleteId').value = id;
+            var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            deleteModal.show();
+        }
+    </script>
+}

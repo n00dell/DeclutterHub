@@ -11,6 +11,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using DeclutterHub.Migrations;
+using DeclutterHub.Models.ViewModels;
 
 namespace DeclutterHub.Controllers
 {
@@ -37,6 +38,7 @@ namespace DeclutterHub.Controllers
             }
             var declutterHubContext = _context.Item
                 .Where(i => i.UserId == user.Id)
+                .Include(i => i.Images)
                 .Include(i => i.Category)
                 .Include(i => i.User);
             return View(await declutterHubContext.ToListAsync());

@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using DeclutterHub.Data;
 using DeclutterHub.Models;
 using Microsoft.AspNetCore.Http;
+using DeclutterHub.Models.ViewModels;
 
 namespace DeclutterHub.Controllers
 {

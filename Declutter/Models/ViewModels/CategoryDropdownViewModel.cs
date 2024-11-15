@@ -1,4 +1,4 @@
-﻿namespace DeclutterHub.Models
+﻿namespace DeclutterHub.Models.ViewModels
 {
     public class CategoryDropdownViewModel
     {

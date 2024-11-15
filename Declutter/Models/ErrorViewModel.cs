@@ -1,4 +1,4 @@
-namespace Declutter.Models
+namespace DeclutterHub.Models
 {
     public class ErrorViewModel
     {

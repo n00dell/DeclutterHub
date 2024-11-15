@@ -1,88 +1,124 @@
 ﻿@model IEnumerable<DeclutterHub.Models.Item>
+@{
+    ViewData["Title"] = "My Items";
+}
 
-<div class="container mt-4">
-    <h1>My Items</h1>
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">My Items</h1>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-2"></i>Create New
+        </a>
+    </div>
 
-    <p>
-        <a asp-action="Create" class="btn btn-primary">Create New</a>
-    </p>
     @if (!Model.Any())
     {
-        <!-- Display message if no items exist for the user -->
-        <div class="alert alert-info">
-            You haven't posted any items yet.
+        <div class="card shadow-sm">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-box-seam text-muted mb-3" style="font-size: 2rem;"></i>
+                <h5 class="card-title">No Items Yet</h5>
+                <p class="card-text text-muted">You haven't posted any items for sale yet.</p>
+                <a asp-action="Create" class="btn btn-primary mt-3">
+                    <i class="bi bi-plus-circle me-2"></i>Post Your First Item
+                </a>
+            </div>
         </div>
     }
     else
     {
-    <div class="row">
-        @foreach (var item in Model)
-        {
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    @if (item.Images != null && item.Images.Any())
-                    {
-                        <img src="@item.Images.First().Url" class="card-img-top" alt="@item.Name">
-                    }
-                    <div class="card-body">
-                        <h5 class="card-title">@item.Name</h5>
-                        <p class="card-text">@item.Description</p>
-                        <p class="card-text">
-                            <strong>Price:</strong> Ksh.@item.Price
-                            @if (item.IsNegotiable)
+        <div class="row g-4">
+            @foreach (var item in Model)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm">
+                        @if (item.Images != null && item.Images.Any())
+                        {
+                            <img src="@item.Images.First().Url" class="card-img-top" alt="@item.Name">
+                        }
+                        else
+                        {
+                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <i class="bi bi-image text-muted" style="font-size: 2rem;"></i>
+                            </div>
+                        }
+                        <div class="card-body">
+                            <h5 class="card-title">@item.Name</h5>
+                            <p class="card-text">@(item.Description?.Length > 100 ? item.Description.Substring(0, 100) + "..." : item.Description)</p>
+
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="text-primary fw-bold">Ksh.@item.Price</span>
+                                @if (item.IsNegotiable)
+                                {
+                                    <span class="badge bg-info">
+                                        <i class="bi bi-chat-dots me-1"></i>Negotiable
+                                    </span>
+                                }
+                            </div>
+
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="bi bi-tag me-2 text-muted"></i>
+                                <span class="text-muted">@item.Category.Name</span>
+                            </div>
+
+                            @if (item.IsSold)
                             {
-                                <span>(Negotiable)</span>
+                                <div class="badge bg-secondary mb-3">
+                                    <i class="bi bi-bag-check me-1"></i>Sold
+                                </div>
                             }
-                        </p>
-                        <p class="card-text"><strong>Category:</strong> @item.Category.Name</p>
-                        <div class="btn-group">
-                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-primary">Edit</a>
-                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info">Details</a>
-                            @if (!item.IsSold)
-                            {
-                                <button type="button"
-                                        class="btn btn-success"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#confirmSoldModal"
-                                        data-item-id="@item.Id"
-                                        data-item-name="@item.Name">
-                                    Mark as Sold
-                                </button>
-                            }
-                            else
-                            {
-                                <span class="btn btn-secondary disabled">Sold</span>
-                            }
+                        </div>
+                        <div class="card-footer bg-transparent border-top-0">
+                            <div class="d-flex gap-2 justify-content-end">
+                                <a asp-action="Details" asp-route-id="@item.Id"
+                                   class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-eye me-1"></i>Details
+                                </a>
+                                <a asp-action="Edit" asp-route-id="@item.Id"
+                                   class="btn btn-outline-warning btn-sm">
+                                    <i class="bi bi-pencil me-1"></i>Edit
+                                </a>
+                                @if (!item.IsSold)
+                                {
+                                    <button type="button" class="btn btn-outline-success btn-sm"
+                                            data-bs-toggle="modal" data-bs-target="#confirmSoldModal"
+                                            data-item-id="@item.Id" data-item-name="@item.Name">
+                                        <i class="bi bi-bag-check me-1"></i>Mark Sold
+                                    </button>
+                                }
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        }
-    </div>}
+            }
+        </div>
+    }
 </div>
 
 <!-- Confirmation Modal -->
-<div class="modal fade" id="confirmSoldModal" tabindex="-1" aria-labelledby="confirmSoldModalLabel" aria-hidden="true">
+<div class="modal fade" id="confirmSoldModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="confirmSoldModalLabel">Confirm Sale</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title">Confirm Sale</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                Are you sure you want to mark "<span id="itemName"></span>" as sold?
+                <p>Are you sure you want to mark "<span id="itemName"></span>" as sold?</p>
+                <p class="text-muted small">This action can't be undone.</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-success" id="confirmSoldButton">Yes, Mark as Sold</button>
+                <button type="button" class="btn btn-success" id="confirmSoldButton">
+                    <i class="bi bi-bag-check me-1"></i>Mark as Sold
+                </button>
             </div>
         </div>
     </div>
 </div>
 
 @section Scripts {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
     <script>
-        // Store the item ID when the modal is opened
         let currentItemId = null;
 
         $('#confirmSoldModal').on('show.bs.modal', function (event) {
@@ -92,13 +128,10 @@
             $('#itemName').text(itemName);
         });
 
-        // Handle the confirmation
         $('#confirmSoldButton').click(function() {
             if (currentItemId) {
                 $.post('/Items/MarkAsSold/' + currentItemId, function(response) {
-                    // Close the modal
                     $('#confirmSoldModal').modal('hide');
-                    // Reload the page to show updated status
                     location.reload();
                 }).fail(function(error) {
                     alert('Error marking item as sold. Please try again.');
