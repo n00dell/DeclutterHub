@@ -20,6 +20,8 @@ namespace DeclutterHub.Models.ViewModels
         public string? ImageUrl { get; set; }
         [Required]
         public string CreatedBy { get; set; }
+
+        public bool IsApproved { get; set; }
     }
 
     // Custom validation attribute for file extensions

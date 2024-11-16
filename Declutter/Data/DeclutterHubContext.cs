@@ -24,6 +24,7 @@ namespace DeclutterHub.Data
         public DbSet<DeclutterHub.Models.Sale> Sale { get; set; } = default!;
 
         public DbSet<DeclutterHub.Models.SavedItem> SavedItem { get; set; }
+        public DbSet<DeclutterHub.Models.CategoryClick> CategoryClick { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -42,6 +43,22 @@ namespace DeclutterHub.Data
             modelBuilder.Entity<SavedItem>()
                 .Property(s => s.Id)
                 .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<CategoryClick>()
+            .HasOne(cc => cc.User)
+            .WithMany()
+            .HasForeignKey(cc => cc.UserId)
+            .OnDelete(DeleteBehavior.Restrict);  // Prevent cascade delete
+
+            modelBuilder.Entity<CategoryClick>()
+                .HasOne(cc => cc.Category)
+                .WithMany()
+                .HasForeignKey(cc => cc.CategoryId)
+                .OnDelete(DeleteBehavior.Restrict);  // Prevent cascade delete
+
+            // Optional: Create an index for faster queries
+            modelBuilder.Entity<CategoryClick>()
+                .HasIndex(cc => new { cc.UserId, cc.CategoryId, cc.ClickedAt });
         }
     }
 }

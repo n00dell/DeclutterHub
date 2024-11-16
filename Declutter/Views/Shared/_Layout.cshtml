@@ -1,4 +1,7 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Identity
+@inject UserManager<User> UserManager
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -21,18 +24,9 @@
                         <li class="nav-item">
                             <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
-                        @* <li class="nav-item">
-                            <a class="nav-link text-light" asp-area="" asp-controller="Sales" asp-action="Index">Sales</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-light" asp-area="" asp-controller="Users" asp-action="Index">Users</a>
-                        </li> *@
                         <li class="nav-item">
                             <a class="nav-link text-light" asp-area="" asp-controller="Categories" asp-action="MySuggestions">Suggest a category</a>
                         </li>
-                        @* <li class="nav-item">
-                            <a class="nav-link text-light" asp-area="" asp-controller="Images" asp-action="Index">Images</a>
-                        </li> *@
                         <li class="nav-item">
                             <a class="nav-link text-light" asp-area="" asp-controller="Items" asp-action="Index">Items Posted</a>
                         </li>
@@ -56,7 +50,16 @@
             </div>
         </nav>
 
-
+        @if (User.Identity.IsAuthenticated)
+        {
+            var currentUser = await UserManager.GetUserAsync(User); // Get the authenticated user
+            if (currentUser != null && !currentUser.EmailConfirmed) // Check if the email is not confirmed
+            {
+                <div class="alert alert-warning">
+                    Please verify your email to access all features. <a href="@Url.Action("ResendVerificationEmail", "Account")">Resend Verification Email</a>
+                </div>
+            }
+        }
 
     </header>
     <div class="container">
@@ -76,4 +79,3 @@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
-

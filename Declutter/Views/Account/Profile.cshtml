@@ -1,0 +1,187 @@
+﻿@model DeclutterHub.Models.ViewModels.ProfileViewModel
+@{
+    ViewData["Title"] = "Profile";
+}
+
+<div class="container mt-4">
+    <!-- User Info -->
+    <div class="card p-4 mb-4">
+        <div class="d-flex align-items-center">
+            <!-- Avatar -->
+            <div class="avatar me-3">
+                @if (!string.IsNullOrEmpty(Model.AvatarUrl))
+                {
+                    <img src="@Model.AvatarUrl" alt="User Avatar" class="rounded-circle" style="width: 70px; height: 70px;">
+                }
+                else
+                {
+                    <div class="rounded-circle d-flex justify-content-center align-items-center bg-secondary text-white" style="width: 70px; height: 70px;">
+                        @Model.UserName.Substring(0, 1).ToUpper()
+                    </div>
+                }
+            </div>
+            <!-- User Details -->
+            <div>
+                <h4>@Model.UserName</h4>
+                <small class="text-muted">Member since @Model.JoinDate.ToString("MMMM yyyy")</small>
+            </div>
+        </div>
+        <div class="mt-3">
+            <span class="badge bg-primary p-2">Items Sold: @Model.ItemsSoldCount</span>
+        </div>
+    </div>
+
+    <!-- Active Listings -->
+    <h5>Active Listings</h5>
+    <div class="row">
+        @if (!Model.ActiveListings.Any())
+        {
+            <p class="text-muted">No active listings available.</p>
+        }
+        else
+        {
+            @foreach (var item in Model.ActiveListings)
+            {
+                <div class="col-md-4 mb-3">
+                    <a href="@Url.Action("Details", "Items", new { id = item.Id })" class="text-decoration-none">
+                        <div class="card">
+                            @if (item.Images != null && item.Images.Any())
+                            {
+                                <img src="@item.Images.First()" class="card-img-top" alt="Item Image">
+                            }
+                            else
+                            {
+                                <div class="card-img-top bg-light d-flex justify-content-center align-items-center" style="height: 150px;">
+                                    <span class="text-muted">No Image</span>
+                                </div>
+                            }
+                            <div class="card-body">
+                                <h6 class="card-title">@item.Name</h6>
+                                <p class="card-text text-muted">
+                                    @item.Price.ToString("C")
+                                    @if (item.IsVerified)
+                                    {
+                                        <span class="badge bg-success ms-2">Verified</span>
+                                    }
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            }
+        }
+    </div>
+
+    <!-- Saved Items -->
+    <h5>Saved Items</h5>
+    <div class="row">
+        @if (!Model.SavedItems.Any())
+        {
+            <p class="text-muted">No saved items.</p>
+        }
+        else
+        {
+            @foreach (var item in Model.SavedItems)
+            {
+                <div class="col-md-4 mb-3">
+                    <a href="@Url.Action("Details", "Items", new { id = item.Id })" class="text-decoration-none">
+                        <div class="card">
+                            @if (item.Images != null && item.Images.Any())
+                            {
+                                <img src="@item.Images.First()" class="card-img-top" alt="Item Image">
+                            }
+                            else
+                            {
+                                <div class="card-img-top bg-light d-flex justify-content-center align-items-center" style="height: 150px;">
+                                    <span class="text-muted">No Image</span>
+                                </div>
+                            }
+                            <div class="card-body">
+                                <h6 class="card-title">@item.Name</h6>
+                                <p class="card-text text-muted">@item.Price.ToString("C")</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            }
+        }
+    </div>
+
+    <!-- Suggested Categories -->
+    <h5>Categories You Suggested</h5>
+    <div class="row">
+        @if (!Model.SuggestedCategories.Any())
+        {
+            <p class="text-muted">No categories suggested.</p>
+        }
+        else
+        {
+            @foreach (var category in Model.SuggestedCategories)
+            {
+                <div class="col-md-4 mb-3">
+                    <a href="@Url.Action("ItemsByCategory", "Categories", new { id = category.Id })" class="text-decoration-none">
+                        <div class="card">
+                            @if (!string.IsNullOrEmpty(category.ImageUrl))
+                            {
+                                <img src="@category.ImageUrl" class="card-img-top" alt="Category Image">
+                            }
+                            else
+                            {
+                                <div class="card-img-top bg-light d-flex justify-content-center align-items-center" style="height: 150px;">
+                                    <span class="text-muted">No Image</span>
+                                </div>
+                            }
+                            <div class="card-body">
+                                <h6 class="card-title">@category.Name</h6>
+                                <p class="text-muted">
+                                    @if (category.IsApproved)
+                                    {
+                                        <span class="badge bg-success">Approved</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning text-dark">Pending Approval</span>
+                                    }
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            }
+        }
+    </div>
+
+    <!-- Most Viewed Categories -->
+    <h5>Your Most Viewed Categories</h5>
+    <div class="row">
+        @if (!Model.MostClickedCategories.Any())
+        {
+            <p class="text-muted">No categories viewed yet.</p>
+        }
+        else
+        {
+            @foreach (var category in Model.MostClickedCategories)
+            {
+                <div class="col-md-4 mb-3">
+                    <a href="@Url.Action("ItemsByCategory", "Categories", new { id = category.Id })" class="text-decoration-none">
+                        <div class="card">
+                            @if (!string.IsNullOrEmpty(category.ImageUrl))
+                            {
+                                <img src="@category.ImageUrl" class="card-img-top" alt="Category Image">
+                            }
+                            else
+                            {
+                                <div class="card-img-top bg-light d-flex justify-content-center align-items-center" style="height: 150px;">
+                                    <span class="text-muted">No Image</span>
+                                </div>
+                            }
+                            <div class="card-body">
+                                <h6 class="card-title">@category.Name</h6>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            }
+        }
+    </div>
+</div>

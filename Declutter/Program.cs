@@ -3,6 +3,8 @@ using DeclutterHub.Data;
 using DeclutterHub.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Razor;
+using DeclutterHub.Services;
+using Microsoft.AspNetCore.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,16 +39,23 @@ builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Account/Login";
     options.LogoutPath = "/Account/Logout";
-    options.AccessDeniedPath = "/Account/AccessDenied";
+    options.AccessDeniedPath = "/Home/AccessDenied";
     options.SlidingExpiration = true;
     options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
 });
+builder.Services.AddScoped<CategoryService>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddSingleton<IMailService, MailService>();
 
+builder.Services.Configure<MailjetSettings>(builder.Configuration.GetSection("MailJet"));
 // Add authorization policies
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+    options.AddPolicy("EmailVerified", policy =>
+        policy.Requirements.Add(new EmailVerifiedRequirement()));
 });
+builder.Services.AddScoped<IAuthorizationHandler, EmailVerifiedHandler>();
 
 // Add services for controllers with views
 builder.Services.AddControllersWithViews();

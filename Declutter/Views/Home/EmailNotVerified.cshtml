@@ -1,0 +1,8 @@
+﻿@{
+    Layout = "_Layout";
+}
+
+<h1>Email Not Verified</h1>
+<p>Your email address has not been verified. Please check your inbox for the verification email.</p>
+<p>If you didn't receive the email, you can <a href="@Url.Action("ResendVerificationEmail", "Account")">request a new verification email</a>.</p>
+<a href="@Url.Action("Index", "Home")">Return to Home</a>
