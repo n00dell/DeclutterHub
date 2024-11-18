@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Razor;
 using DeclutterHub.Services;
 using Microsoft.AspNetCore.Authorization;
+using Rotativa.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,11 +44,13 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.SlidingExpiration = true;
     options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
 });
+
 builder.Services.AddScoped<CategoryService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<IMailService, MailService>();
 
 builder.Services.Configure<MailjetSettings>(builder.Configuration.GetSection("MailJet"));
+
 // Add authorization policies
 builder.Services.AddAuthorization(options =>
 {
@@ -72,6 +75,9 @@ builder.Services.Configure<RazorViewEngineOptions>(options =>
 });
 
 var app = builder.Build();
+
+// Configure Rotativa for PDF generation
+RotativaConfiguration.Setup(app.Environment.WebRootPath, "C:\\Program Files\\wkhtmltopdf\\bin");
 
 // Configure the HTTP request pipeline
 if (!app.Environment.IsDevelopment())
