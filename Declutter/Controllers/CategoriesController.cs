@@ -21,14 +21,16 @@ namespace DeclutterHub.Controllers
         private const int MaxFileSize = 5 * 1024 * 1024; // 5MB
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
+        private readonly ILogger<CategoriesController> _logger;
        
 
-        public CategoriesController(DeclutterHubContext context, IWebHostEnvironment webHostEnvironment, UserManager<User> userManager, SignInManager<User> signInManager)
+        public CategoriesController(DeclutterHubContext context, IWebHostEnvironment webHostEnvironment, UserManager<User> userManager, SignInManager<User> signInManager, ILogger<CategoriesController> logger)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
             _userManager = userManager;
             _signInManager = signInManager;
+            _logger = logger;
             
         }
      
@@ -202,7 +204,7 @@ namespace DeclutterHub.Controllers
                 _context.Add(category);
                 await _context.SaveChangesAsync();
                 TempData["Success"] = "Thank you for suggesting a category! It will be reviewed by our administrators.";
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("MySuggestions","Categories");
             }
             catch (Exception)
             {
@@ -237,6 +239,90 @@ namespace DeclutterHub.Controllers
 
             return View(popularCategories);
         }
+        [HttpGet]
+        public IActionResult Edit(int id)
+        {
+            var user = _userManager.GetUserAsync(User);
+            
+            var suggestion = _context.Category.FirstOrDefault(c => c.Id == id && !c.IsApproved); // Only allow editing pending approval suggestions
+            if (suggestion == null)
+            {
+                return NotFound(); // If the suggestion is not found or already approved, return NotFound
+            }
+            if(suggestion.CreatedBy!= user.Id.ToString())
+            {
+                return BadRequest();
+            }
+            return View(suggestion);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, Category suggestion)
+        {
+            if (id != suggestion.Id)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    // Update suggestion details
+                    _context.Update(suggestion);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index)); // Redirect back to the list of categories or suggestions
+                }
+                catch (Exception ex)
+                {
+                    
+                    ModelState.AddModelError(string.Empty, "Error updating category suggestion.");
+                }
+            }
+
+            return View(suggestion);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var category = await _context.Category.FindAsync(id);
+            if (category == null)
+            {
+                return Json(new { success = false, message = "Category not found" });
+            }
+
+            try
+            {
+                // Delete associated image if it exists
+                if (!string.IsNullOrEmpty(category.ImageUrl))
+                {
+                    DeleteImage(category.ImageUrl);
+                }
+
+                // Remove the category from the database
+                _context.Category.Remove(category);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "An error occurred while deleting the category: " + ex.Message });
+            }
+
+            return RedirectToAction("MySuggestions", "Categories");
+        }
+        private void DeleteImage(string imageUrl)
+        {
+            if (string.IsNullOrEmpty(imageUrl)) return; // Fix: Check if it is empty
+            var imagePath = Path.Combine(_webHostEnvironment.WebRootPath, imageUrl.TrimStart('/'));
+            if (System.IO.File.Exists(imagePath))
+            {
+                System.IO.File.Delete(imagePath);
+            }
+        }
+
     }
+
 }
 

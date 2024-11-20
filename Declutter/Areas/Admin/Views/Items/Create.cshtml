@@ -8,7 +8,7 @@
 
 <form asp-action="Create" method="post" enctype="multipart/form-data">
     @Html.AntiForgeryToken()
-
+  <div asp-validation-summary="All"></div>
     <div class="form-group">
         <label asp-for="Name"></label>
         <input asp-for="Name" class="form-control" />
@@ -32,7 +32,12 @@
         <input asp-for="Location" class="form-control" />
         <span asp-validation-for="Location" class="text-danger"></span>
     </div>
-
+    <div class="form-group">
+        <label for="CountryCode" class="control-label">Country Code</label>
+        <select asp-for="CountryCode" asp-items="Model.CountryCodes" class="form-control">
+            <option value="">Select Code</option>
+        </select>
+    </div>
     <div class="form-group">
         <label asp-for="PhoneNumber"></label>
         <input asp-for="PhoneNumber" class="form-control" />
@@ -63,18 +68,13 @@
         <span asp-validation-for="CategoryId" class="text-danger"></span>
     </div>
 
-    @* <div class="form-group">
-    <label asp-for="UserId"></label>
-    <select asp-for="UserId" class="form-control" asp-items="ViewBag.UserId"></select>
-    <span asp-validation-for="UserId" class="text-danger"></span>
-    </div> *@
-
+    <input asp-for="UserId" type="hidden" />
     <div class="form-group">
         <label asp-for="ImageFiles"></label>
         <input asp-for="ImageFiles" type="file" class="form-control-file" multiple />
         <span asp-validation-for="ImageFiles" class="text-danger"></span>
     </div>
-
+   
     <button type="submit" class="btn btn-primary">Create Item</button>
 </form>
 

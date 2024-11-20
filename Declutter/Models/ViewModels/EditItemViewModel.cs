@@ -18,6 +18,8 @@ namespace DeclutterHub.Models.ViewModels
         public int CategoryId { get; set; }
         public bool IsSold { get; set; }
         public string CountryCode { get; set; }
+        public IEnumerable<IFormFile> NewImages { get; set; }
+
         public List<SelectListItem> CountryCodes { get; set; } = new List<SelectListItem>
     {
         new SelectListItem { Value = "+1", Text = "US (+1)" },
@@ -27,14 +29,15 @@ namespace DeclutterHub.Models.ViewModels
         // Add more country codes as needed
     };
         public ICollection<Image> Images { get; set; }
-        public List<IFormFile>? NewImages { get; set; }  // Add this property for new image uploads
+        
+
         public List<int>? ImagesToDelete { get; set; }
         public EditItemViewModel()
         {
             // Initialize collections to empty lists to avoid null reference exceptions
             Images = new List<Image>();
             NewImages = new List<IFormFile>();
-            ImagesToDelete = new List<int>();
+            
         }
     }
 }

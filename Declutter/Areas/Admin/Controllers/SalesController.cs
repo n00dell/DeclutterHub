@@ -19,6 +19,7 @@ namespace DeclutterHub.Areas.Admin.Controllers
 
         public async Task<IActionResult> Index()
         {
+            var now = DateTime.Now;
             // Get all sold items with related data
             var soldItems = await _context.Item
                 .Include(i => i.Category)
@@ -41,8 +42,36 @@ namespace DeclutterHub.Areas.Admin.Controllers
                 .OrderBy(x => x.Year)
                 .ThenBy(x => x.Month)
                 .ToListAsync();
+            var currentMonthSales = monthlySales.FirstOrDefault(m => m.Year == now.Year && m.Month == now.Month);
+            var lastMonthSales = monthlySales.FirstOrDefault(m => m.Year == (now.Month == 1 ? now.Year - 1 : now.Year)
+                                                                  && m.Month == (now.Month == 1 ? 12 : now.Month - 1));
+            // Calculate daily sales data
+            var dailySales = await _context.Item
+                .Where(i => i.IsSold && i.CreatedAt != default)
+                .GroupBy(i => new { i.CreatedAt.Date })
+                .Select(g => new
+                {
+                    Date = g.Key.Date,
+                    Count = g.Count(),
+                    Value = g.Sum(i => i.Price)
+                })
+                .OrderBy(x => x.Date)
+                .ToListAsync();
 
-            // Format the data after retrieving it from the database
+            // Calculate yearly sales data
+            var yearlySales = await _context.Item
+                .Where(i => i.IsSold && i.CreatedAt != default)
+                .GroupBy(i => i.CreatedAt.Year)
+                .Select(g => new
+                {
+                    Year = g.Key,
+                    Count = g.Count(),
+                    Value = g.Sum(i => i.Price)
+                })
+                .OrderBy(x => x.Year)
+                .ToListAsync();
+
+            // Format the data for Chart.js
             var formattedMonthlySales = monthlySales.Select(m => new MonthlySalesData
             {
                 Month = $"{m.Year}-{m.Month:D2}",
@@ -50,21 +79,54 @@ namespace DeclutterHub.Areas.Admin.Controllers
                 Value = m.Value
             }).ToList();
 
-            // If no data, create an empty list of the correct type
-            if (!formattedMonthlySales.Any())
+            var formattedDailySales = dailySales.Select(d => new DailySalesData
             {
-                formattedMonthlySales = new List<MonthlySalesData>();
-            }
+                Date = d.Date.ToString("yyyy-MM-dd"),
+                Count = d.Count,
+                Value = d.Value
+            }).ToList();
 
-            // Calculate total listings for conversion rate
-            var totalListings = await _context.Item.CountAsync();
+            var formattedYearlySales = yearlySales.Select(y => new YearlySalesData
+            {
+                Year = y.Year,
+                Count = y.Count,
+                Value = y.Value
+            }).ToList();
 
             // Add data to ViewBag
             ViewBag.MonthlySales = formattedMonthlySales;
-            ViewBag.TotalListings = totalListings;
+            ViewBag.DailySales = formattedDailySales;
+            ViewBag.YearlySales = formattedYearlySales;
 
+            // Calculate total listings
+            var totalListings = await _context.Item.CountAsync();
+           
+            ViewBag.TotalListings = totalListings;
+            var totalSales = soldItems.Sum(i => i.Price);
+            var averageSalePrice = soldItems.Any() ? soldItems.Average(i => i.Price) : 0;
+
+            ViewBag.TotalSalesPercentageIncrease = lastMonthSales != null && lastMonthSales.Count > 0
+        ? ((double)(currentMonthSales?.Count ?? 0) - lastMonthSales.Count) / lastMonthSales.Count * 100
+        : 0;
+
+            ViewBag.TotalRevenuePercentageIncrease = lastMonthSales != null && lastMonthSales.Value > 0
+        ? ((currentMonthSales?.Value ?? 0) - lastMonthSales.Value) / lastMonthSales.Value * 100
+        : 0;
+            var currentMonthAvgPrice = currentMonthSales != null && currentMonthSales.Count > 0
+        ? currentMonthSales.Value / currentMonthSales.Count
+        : 0;
+
+            var lastMonthAvgPrice = lastMonthSales != null && lastMonthSales.Count > 0
+                ? lastMonthSales.Value / lastMonthSales.Count
+                : 0;
+
+            ViewBag.AverageSalePricePercentageChange = lastMonthAvgPrice > 0
+                ? (currentMonthAvgPrice - lastMonthAvgPrice) / lastMonthAvgPrice * 100
+                : 0;
+            
             return View(soldItems);
         }
+
         public async Task<IActionResult> DownloadPdf()
         {
             // Get sold items from the database

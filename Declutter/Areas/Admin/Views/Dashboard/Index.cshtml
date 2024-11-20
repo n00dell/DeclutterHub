@@ -92,10 +92,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         // Dummy data for charts
-        var salesData = {
-            labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
-            values: [5, 10, 8, 15, 12, 20]
-        };
         var salesData = JSON.parse('@Html.Raw(ViewBag.SalesDataJson)');
         var categoryData = JSON.parse('@Html.Raw(ViewBag.CategoryDataJson)');
 

@@ -9,7 +9,7 @@
 
 <form asp-action="Edit" method="post" enctype="multipart/form-data">
     @Html.AntiForgeryToken()
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div asp-validation-summary="All" class="text-danger"></div>
 
     <div class="form-group">
         <label asp-for="Name"></label>
@@ -28,10 +28,10 @@
         <img src="@Model.ImageUrl" alt="Current Category Image" style="max-width: 200px; margin-bottom: 10px;" />
         <div>
             <label>Do you want to remove this image?</label>
-            <input type="checkbox" name="removeImage" value="true" />
+            <input asp-for="RemoveImage" type="checkbox" value="true" />
         </div>
     }
-
+    <input asp-for="CreatedBy" type="hidden" />
     <div class="form-group">
         <label asp-for="ImageFile"></label>
         <input asp-for="ImageFile" type="file" class="form-control-file" />

@@ -59,6 +59,12 @@ namespace DeclutterHub.Data
             // Optional: Create an index for faster queries
             modelBuilder.Entity<CategoryClick>()
                 .HasIndex(cc => new { cc.UserId, cc.CategoryId, cc.ClickedAt });
+            modelBuilder.Entity<Image>()
+         .HasOne(i => i.Item)
+             .WithMany(i => i.Images)
+         .HasForeignKey(i => i.ItemId)
+         .OnDelete(DeleteBehavior.Cascade);
+
         }
     }
 }

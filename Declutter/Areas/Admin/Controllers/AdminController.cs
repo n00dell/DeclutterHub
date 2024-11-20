@@ -197,7 +197,7 @@ namespace DeclutterHub.Areas.Admin.Controllers
                     existingItem.CategoryId = viewModel.CategoryId;
 
                     // Handle image deletions and uploads
-                    await HandleImageUploads(existingItem, viewModel);
+                    //await HandleImageUploads(existingItem, viewModel);
 
                     _context.Update(existingItem);
                     await _context.SaveChangesAsync();
@@ -215,52 +215,52 @@ namespace DeclutterHub.Areas.Admin.Controllers
             return View(viewModel);
         }
 
-        private async Task HandleImageUploads(Item existingItem, EditItemViewModel viewModel)
-        {
-            // Delete images if any
-            if (viewModel.ImagesToDelete != null && viewModel.ImagesToDelete.Any())
-            {
-                foreach (var imageId in viewModel.ImagesToDelete)
-                {
-                    var imageToDelete = existingItem.Images.FirstOrDefault(i => i.Id == imageId);
-                    if (imageToDelete != null)
-                    {
-                        DeleteImageFile(imageToDelete.Url);
-                        existingItem.Images.Remove(imageToDelete);
-                        _context.Image.Remove(imageToDelete);
-                    }
-                }
-            }
+        //private async Task HandleImageUploads(Item existingItem, EditItemViewModel viewModel)
+        //{
+        //    // Delete images if any
+        //    if (viewModel.ImagesToDelete != null && viewModel.ImagesToDelete.Any())
+        //    {
+        //        foreach (var imageId in viewModel.ImagesToDelete)
+        //        {
+        //            var imageToDelete = existingItem.Images.FirstOrDefault(i => i.Id == imageId);
+        //            if (imageToDelete != null)
+        //            {
+        //                DeleteImageFile(imageToDelete.Url);
+        //                existingItem.Images.Remove(imageToDelete);
+        //                _context.Image.Remove(imageToDelete);
+        //            }
+        //        }
+        //    }
 
-            // Upload new images
-            if (viewModel.NewImages != null && viewModel.NewImages.Any())
-            {
-                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/items");
-                Directory.CreateDirectory(uploadsFolder);
+        //    // Upload new images
+        //    if (viewModel.NewImages != null && viewModel.NewImages.Any())
+        //    {
+        //        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/items");
+        //        Directory.CreateDirectory(uploadsFolder);
 
-                foreach (var imageFile in viewModel.NewImages)
-                {
-                    if (imageFile.Length > 0)
-                    {
-                        var uniqueFileName = Guid.NewGuid().ToString() + "_" + imageFile.FileName;
-                        var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+        //        foreach (var imageFile in viewModel.NewImages)
+        //        {
+        //            if (imageFile.Length > 0)
+        //            {
+        //                var uniqueFileName = Guid.NewGuid().ToString() + "_" + imageFile.FileName;
+        //                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
-                        using (var stream = new FileStream(filePath, FileMode.Create))
-                        {
-                            await imageFile.CopyToAsync(stream);
-                        }
+        //                using (var stream = new FileStream(filePath, FileMode.Create))
+        //                {
+        //                    await imageFile.CopyToAsync(stream);
+        //                }
 
-                        var image = new Image
-                        {
-                            Url = $"/images/items/{uniqueFileName}",
-                            ItemId = existingItem.Id
-                        };
+        //                var image = new Image
+        //                {
+        //                    Url = $"/images/items/{uniqueFileName}",
+        //                    ItemId = existingItem.Id
+        //                };
 
-                        existingItem.Images.Add(image);
-                    }
-                }
-            }
-        }
+        //                existingItem.Images.Add(image);
+        //            }
+        //        }
+        //    }
+        //}
 
         private void DeleteImageFile(string imageUrl)
         {

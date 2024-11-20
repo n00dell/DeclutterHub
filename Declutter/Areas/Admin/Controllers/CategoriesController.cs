@@ -143,7 +143,7 @@ namespace DeclutterHub.Areas.Admin.Controllers
                 Name = category.Name,
                 Description = category.Description,
                 ImageUrl = category.ImageUrl,
-                // ImageFile should not be set here as it is for file upload only
+                CreatedBy = category.CreatedBy
             };
 
             return View(model);
@@ -153,58 +153,58 @@ namespace DeclutterHub.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(CategoryViewModel model, bool removeImage = false)
         {
-    // Remove ImageUrl from ModelState since it's not part of the form submission
-    ModelState.Remove("ImageUrl");
+            // Remove ImageUrl from ModelState since it's not part of the form submission
+            ModelState.Remove("ImageUrl");
 
-    if (!ModelState.IsValid)
-    {
-        return View(model);
-    }
-
-    var category = await _context.Category.FindAsync(model.Id);
-    if (category == null) return NotFound();
-
-    try
-    {
-        // Update basic properties
-        category.Name = model.Name;
-        category.Description = model.Description;
-
-        // Handle image logic
-        if (removeImage)
-        {
-            // Delete existing image if there is one
-            if (!string.IsNullOrEmpty(category.ImageUrl))
+            if (!ModelState.IsValid)
             {
-                DeleteImage(category.ImageUrl);
-                category.ImageUrl = null;
+                return View(model);
+            }
+
+            var category = await _context.Category.FindAsync(model.Id);
+            if (category == null) return NotFound();
+
+            try
+            {
+                // Update basic properties
+                category.Name = model.Name;
+                category.Description = model.Description;
+                category.CreatedBy = model.CreatedBy;
+
+                // Handle image logic
+                if (removeImage)
+                {
+                    // Delete existing image if there is one
+                    if (!string.IsNullOrEmpty(category.ImageUrl))
+                    {
+                        DeleteImage(category.ImageUrl);
+                        category.ImageUrl = null;
+                    }
+                }
+                else if (model.ImageFile != null)
+                {
+                    // Delete old image if it exists
+                    if (!string.IsNullOrEmpty(category.ImageUrl))
+                    {
+                        DeleteImage(category.ImageUrl);
+                    }
+
+                    // Save new image
+                    category.ImageUrl = await SaveImage(model.ImageFile);
+                }
+                // If neither removeImage is true nor a new image is uploaded, keep the existing image
+
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Category updated successfully!";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating category {CategoryId}", model.Id);
+                ModelState.AddModelError("", "An error occurred while saving the category.");
+                return View(model);
             }
         }
-        else if (model.ImageFile != null)
-        {
-            // Delete old image if it exists
-            if (!string.IsNullOrEmpty(category.ImageUrl))
-            {
-                DeleteImage(category.ImageUrl);
-            }
-            // Save new image
-            category.ImageUrl = await SaveImage(model.ImageFile);
-        }
-        // If neither removeImage is true nor a new image is uploaded, keep the existing image
-
-        await _context.SaveChangesAsync();
-        TempData["Success"] = "Category updated successfully!";
-        return RedirectToAction(nameof(Index));
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, "Error updating category {CategoryId}", model.Id);
-        ModelState.AddModelError("", "An error occurred while saving the category.");
-        return View(model);
-    }
-        }
-
-
 
 
         private async Task<string> SaveImage (IFormFile imageFile)

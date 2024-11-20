@@ -3,131 +3,312 @@
 
 @{
     ViewData["Title"] = "Sales Report";
-    Layout = "/Areas/Admin/Views/Shared/_PdfLayout.cshtml"; // PDF Layout
+    Layout = "/Areas/Admin/Views/Shared/_PdfLayout.cshtml";
+    Layout = "/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
-<div class="container">
-    <h1>Sales Dashboard</h1>
 
-    <!-- Display Total Listings -->
-    <div class="row mb-3">
-        <div class="col-md-6">
-            <h3>Total Listings: @ViewBag.TotalListings</h3>
-        </div>
-        <div class="col-md-6 text-end">
-            <button id="downloadPdf" asp-action="DownloadPdf" class="btn btn-primary">Download Chart as PDF</button>
+<!-- Move styles to head section using regular link/style tags instead of section -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+    .card {
+        transition: transform 0.2s ease-in-out;
+    }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+    .nav-pills .nav-link {
+        color: #6c757d;
+        border-radius: 8px;
+        padding: 8px 16px;
+        margin-right: 8px;
+    }
+
+        .nav-pills .nav-link.active {
+            background-color: #0d6efd;
+            color: white;
+        }
+
+    .chart-container {
+        background-color: white;
+        border-radius: 8px;
+        padding: 16px;
+    }
+</style>
+
+<div class="container-fluid px-4 py-5 bg-light">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="display-5 fw-bold text-primary mb-2">Sales Dashboard</h1>
+                    <p class="text-muted">Track your business performance and insights</p>
+                </div>
+                <button id="downloadPdf" asp-action="DownloadPdf" class="btn btn-primary d-flex align-items-center gap-2">
+                    <i class="fas fa-download"></i>
+                    Download Report
+                </button>
+            </div>
         </div>
     </div>
 
-    <!-- Sales Chart -->
-    <div class="row">
-        <div class="col-md-12">
-            <canvas id="salesChart" width="400" height="200"></canvas>
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="text-muted mb-2">Total Listings</h6>
+                    <h2 class="display-6 fw-bold mb-2">@ViewBag.TotalListings</h2>
+                    <div class="d-flex align-items-center text-success">
+                        <i class="fas fa-arrow-up me-1"></i>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="text-muted mb-2">Total Sales</h6>
+                    <h2 class="display-6 fw-bold mb-2">Ksh. @ViewBag.TotalSales</h2>
+                    <div class="d-flex align-items-center text-success">
+                        <i class="fas fa-arrow-up me-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="text-muted mb-2">Average Sale Price</h6>
+                    <h2 class="display-6 fw-bold mb-2">Ksh. @ViewBag.AverageSalePrice</h2>
+                    <div class="d-flex align-items-center text-danger">
+                        <i class="fas fa-arrow-down me-1"></i>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart Section -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+            <ul class="nav nav-pills mb-4" id="salesTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="monthly-tab" data-bs-toggle="tab" data-bs-target="#monthly" type="button" role="tab">
+                        <i class="fas fa-calendar-alt me-2"></i>Monthly
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="daily-tab" data-bs-toggle="tab" data-bs-target="#daily" type="button" role="tab">
+                        <i class="fas fa-calendar-day me-2"></i>Daily
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="yearly-tab" data-bs-toggle="tab" data-bs-target="#yearly" type="button" role="tab">
+                        <i class="fas fa-calendar me-2"></i>Yearly
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="salesTabContent">
+                <div class="tab-pane fade show active" id="monthly" role="tabpanel">
+                    <div class="chart-container" style="position: relative; height:400px; width:100%">
+                        <canvas id="monthlySalesChart"></canvas>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="daily" role="tabpanel">
+                    <div class="chart-container" style="position: relative; height:400px; width:100%">
+                        <canvas id="dailySalesChart"></canvas>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="yearly" role="tabpanel">
+                    <div class="chart-container" style="position: relative; height:400px; width:100%">
+                        <canvas id="yearlySalesChart"></canvas>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script> <!-- Correct jsPDF version -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable"></script>
 
     <script>
-        // Retrieve Monthly Sales Data from ViewBag
+        // Chart.js default settings
+        Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial';
+        Chart.defaults.scale.grid.color = 'rgba(0,0,0,0.05)';
+        Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(0,0,0,0.8)';
+        Chart.defaults.plugins.legend.position = 'top';
+
+        // Retrieve Sales Data from ViewBag
+        const dailySalesData = @Html.Raw(JsonConvert.SerializeObject(ViewBag.DailySales));
         const monthlySalesData = @Html.Raw(JsonConvert.SerializeObject(ViewBag.MonthlySales));
+        const yearlySalesData = @Html.Raw(JsonConvert.SerializeObject(ViewBag.YearlySales));
 
-        console.log('Monthly Sales Data:', monthlySalesData);
-
-        let salesChart; // To reference the Chart.js instance
-
-        // Check if there's any data
-        if (!monthlySalesData || monthlySalesData.length === 0) {
-            console.error("No sales data available to render chart.");
-        } else {
-            const labels = monthlySalesData.map(data => data.Month); // Months
-            const salesCount = monthlySalesData.map(data => data.Count); // Number of Sales
-            const salesValue = monthlySalesData.map(data => data.Value); // Sales Value
-
-            // Chart.js configuration
-            const ctx = document.getElementById('salesChart').getContext('2d');
-            salesChart = new Chart(ctx, {
-                type: 'line', // Choose line chart
-                data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: 'Number of Sales',
-                            data: salesCount,
-                            borderColor: 'rgba(75, 192, 192, 1)',
-                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                            fill: true,
-                            tension: 0.4 // Smoother curves
-                        },
-                        {
-                            label: 'Sales Value',
-                            data: salesValue,
-                            borderColor: 'rgba(255, 99, 132, 1)',
-                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                            fill: true,
-                            tension: 0.4
-                        }
-                    ]
+        // Chart Configuration
+        const chartConfig = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: {
+                        usePointStyle: true,
+                        padding: 20
+                    }
                 },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'top'
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function (context) {
-                                    // Format values nicely in the tooltip
-                                    return context.dataset.label + ': ' +
-                                           (context.dataset.label === 'Sales Value'
-                                            ? `$${context.raw.toFixed(2)}`
-                                            : context.raw);
-                                }
+                tooltip: {
+                    padding: 12,
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    bodySpacing: 8,
+                    cornerRadius: 6,
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
                             }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Count / Value'
+                            if (context.dataset.label === 'Sales Value') {
+                                label += '$' + context.raw.toFixed(2);
+                            } else {
+                                label += context.raw;
                             }
-                        },
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Month'
-                            }
+                            return label;
                         }
                     }
                 }
-            });
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        padding: 10
+                    },
+                    grid: {
+                        drawBorder: false
+                    }
+                },
+                x: {
+                    ticks: {
+                        padding: 10
+                    },
+                    grid: {
+                        drawBorder: false
+                    }
+                }
+            }
+        };
+
+        // Render Chart Helper Function
+        function renderChart(chartId, labels, datasets, type = 'line') {
+            const ctx = document.getElementById(chartId).getContext('2d');
+            const gradientFill1 = ctx.createLinearGradient(0, 0, 0, 400);
+            gradientFill1.addColorStop(0, 'rgba(75, 192, 192, 0.2)');
+            gradientFill1.addColorStop(1, 'rgba(75, 192, 192, 0)');
+
+            const gradientFill2 = ctx.createLinearGradient(0, 0, 0, 400);
+            gradientFill2.addColorStop(0, 'rgba(255, 99, 132, 0.2)');
+            gradientFill2.addColorStop(1, 'rgba(255, 99, 132, 0)');
+
+            const config = {
+                type: type,
+                data: {
+                    labels: labels,
+                    datasets: datasets.map((dataset, index) => ({
+                        ...dataset,
+                        backgroundColor: index === 0 ? gradientFill1 : gradientFill2,
+                        borderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        tension: 0.4
+                    }))
+                },
+                options: chartConfig
+            };
+
+            new Chart(ctx, config);
         }
 
-        // Download PDF functionality
-        document.getElementById('downloadPdf').addEventListener('click', () => {
-            // Ensure jsPDF is accessed correctly
-            const { jsPDF } = window.jspdf; // Correctly access jsPDF from window.jspdf
-            const pdf = new jsPDF({ orientation: 'landscape' }); // Create PDF in landscape mode
+        // Initialize Charts
+        document.addEventListener('DOMContentLoaded', function() {
+            // Monthly Chart
+            if (monthlySalesData?.length > 0) {
+                renderChart('monthlySalesChart',
+                    monthlySalesData.map(d => d.Month),
+                    [{
+                        label: 'Number of Sales',
+                        data: monthlySalesData.map(d => d.Count),
+                        borderColor: 'rgb(75, 192, 192)'
+                    }, {
+                        label: 'Sales Value',
+                        data: monthlySalesData.map(d => d.Value),
+                        borderColor: 'rgb(255, 99, 132)'
+                    }]
+                );
+            }
 
-            // Add chart as an image to the PDF
-            const chartCanvas = document.getElementById('salesChart');
-            const chartImage = chartCanvas.toDataURL('image/png', 1.0); // Convert chart to image
+            // Daily Chart
+            if (dailySalesData?.length > 0) {
+                renderChart('dailySalesChart',
+                    dailySalesData.map(d => d.Date),
+                    [{
+                        label: 'Number of Sales',
+                        data: dailySalesData.map(d => d.Count),
+                        borderColor: 'rgb(75, 192, 192)'
+                    }, {
+                        label: 'Sales Value',
+                        data: dailySalesData.map(d => d.Value),
+                        borderColor: 'rgb(255, 99, 132)'
+                    }],
+                    'bar'
+                );
+            }
 
-            pdf.addImage(chartImage, 'PNG', 10, 10, 280, 150); // Adjust position and size in the PDF
+            // Yearly Chart
+            if (yearlySalesData?.length > 0) {
+                renderChart('yearlySalesChart',
+                    yearlySalesData.map(d => d.Year),
+                    [{
+                        label: 'Number of Sales',
+                        data: yearlySalesData.map(d => d.Count),
+                        borderColor: 'rgb(75, 192, 192)'
+                    }, {
+                        label: 'Sales Value',
+                        data: yearlySalesData.map(d => d.Value),
+                        borderColor: 'rgb(255, 99, 132)'
+                    }]
+                );
+            }
+        });
 
-            // Add a title
-            pdf.setFontSize(16);
-            pdf.text('Sales Chart', 140, 10, { align: 'center' });
+        // PDF Download Handler
+        document.getElementById('downloadPdf').addEventListener('click', function(e) {
+            e.preventDefault();
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF({
+                orientation: 'landscape',
+                unit: 'mm',
+                format: 'a4'
+            });
 
-            // Save the PDF
-            pdf.save('SalesChart.pdf');
+            // Add title
+            pdf.setFontSize(20);
+            pdf.text('Sales Report', pdf.internal.pageSize.getWidth() / 2, 20, { align: 'center' });
+
+            // Add active chart
+            const activeChart = document.querySelector('.tab-pane.active canvas');
+            const chartImage = activeChart.toDataURL('image/png', 1.0);
+
+            pdf.addImage(chartImage, 'PNG', 10, 30, 277, 150);
+            pdf.save('SalesReport.pdf');
         });
     </script>
 }
-

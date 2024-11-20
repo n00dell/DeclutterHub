@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System.Text.Json;
 
 namespace DeclutterHub.Areas.Admin.Controllers
@@ -50,30 +51,31 @@ namespace DeclutterHub.Areas.Admin.Controllers
                         ItemCount = c.Items.Count()
                     })
                     .ToListAsync();
+                var monthlySalesData = _context.Sale
+                    .GroupBy(s => s.SaleDate.Month)
+                .Select(g => new MonthlySalesData
+                   {
+                  Month = g.Key.ToString(),
+                   Count = g.Count(),
+                   Value = g.Sum(s => s.Item.Price) // Adjust this according to your price calculation logic
+                 }).ToList();
 
-                ViewBag.CategoryDataJson = JsonSerializer.Serialize(new
+
+                ViewBag.CategoryDataJson = Newtonsoft.Json.JsonConvert.SerializeObject(new
                 {
                     labels = categoryData.Select(c => c.Name).ToArray(),
                     values = categoryData.Select(c => c.ItemCount).ToArray()
                 });
 
                 // Sales data
-                var salesData = await _context.Sale
-                    .GroupBy(s => s.SaleDate.Month)
-                    .OrderBy(g => g.Key)
-                    .Select(g => new
-                    {
-                        Month = g.Key,
-                        SalesCount = g.Count(),
-                    })
-                    .ToListAsync();
-
-                ViewBag.SalesDataJson = JsonSerializer.Serialize(new
+                var salesData = new
                 {
-                    labels = salesData.Select(s => System.Globalization.CultureInfo.CurrentCulture
-                        .DateTimeFormat.GetMonthName(s.Month)).ToArray(),
-                    salesCount = salesData.Select(s => s.SalesCount).ToArray(),
-                });
+                    labels = monthlySalesData.Select(m => m.Month).ToArray(),
+                    values = monthlySalesData.Select(m => m.Count).ToArray() // or use m.Value for total sales value
+                };
+
+                // Pass the sales data as JSON
+                ViewBag.SalesDataJson = JsonConvert.SerializeObject(salesData);
 
                 ViewData["Layout"] = "_AdminLayout";
                 return View("/Areas/Admin/Views/Dashboard/Index.cshtml");
